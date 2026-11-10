@@ -211,7 +211,9 @@ async function start() {
     // Slow zoom in and out (31 s, out of step with the other loops so the view keeps changing),
     // backing off a little as the relief grows so the tall parts stay in frame.
     const zoom = 1 + 0.2 * Math.sin(t * (Math.PI * 2 / 31) + 1.2);
-    let radius = ((narrow ? 1.5 : 1.22) + heightScale * 0.4) * zoom;
+    // Beside the headline on wide screens the stage is about square; on phones it's below the text.
+    const base = narrow ? (innerWidth > 980 ? 1.3 : 1.5) : 1.22;
+    let radius = (base + heightScale * 0.4) * zoom;
     const target = [0, heightScale * scene.typicalH, 0];
     // Never let the camera dip into the reef tops: keep the same angle and back away instead.
     const minEyeY = heightScale * 1.05 + 0.08;
