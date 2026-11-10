@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy policy · SeaBathy</title>
+  <meta name="description" content="SeaBathy's privacy policy: no account, no ads, no analytics. What the apps send to map and ocean-data services, and why.">
+  <link rel="canonical" href="https://seabathy.com/privacy">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/site.css?v=6">
+  <style>
+    .policy { max-width: 760px; margin: 0 auto; padding: 70px 16px 40px; }
+    .policy h1 { font-size: clamp(36px, 5vw, 54px); font-weight: 820; margin-bottom: 10px; }
+    .policy h2 { font-size: 24px; font-weight: 800; margin: 40px 0 12px; }
+    .policy p, .policy li { color: #b7c7d6; }
+    .policy p + p { margin-top: 12px; }
+    .policy ul { padding-left: 20px; margin: 10px 0 0; }
+    .policy li { margin: 6px 0; }
+    .policy table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+    .policy th, .policy td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .policy th { color: var(--text); }
+    .policy td { color: #b7c7d6; }
+    .policy .summary { margin-top: 26px; padding: 20px 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+    .policy .summary li { color: var(--text); }
+    .policy a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="/" aria-label="SeaBathy home">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0e7490"/><path d="M4 12c3-2.5 6-2.5 9 0s6 2.5 9 0 4.5-2 6-1" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round"/><path d="M4 26l6-8 4 4 5-7 5 5 4-3v9z" fill="#ccfbf1"/></svg>
+    <span>SeaBathy</span>
+  </a>
+  <a class="btn btn-small btn-ghost" href="/">Back to SeaBathy</a>
+</header>
+
+<main class="policy">
+  <p class="eyebrow">Privacy policy</p>
+  <h1>Your data stays yours.</h1>
+  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, BathyPicker and AT5 Chart Maker) and this website. Last updated 10 November 2026.</p>
+
+  <div class="summary">
+    <ul>
+      <li>No account, no sign-in, no ads and no analytics or tracking.</li>
+      <li>SeaBathy has no servers of its own. Nothing is sent to us, and we never see your location, files, waypoints or routes.</li>
+      <li>To show maps and ocean data, the apps ask public services for the area you're looking at. Those requests are described below.</li>
+      <li>Nothing is sold or shared for advertising.</li>
+    </ul>
+  </div>
+
+  <h2>What stays on your device</h2>
+  <p>Your GPS position, the survey and chart files you open, waypoints, routes, tracks, anchor watches, tide places, saved maps and settings are kept on your phone or computer only. They are not backed up to the cloud by the app. Uninstalling the app deletes them (files you opened from your own storage stay where they are).</p>
+
+  <h2>Location</h2>
+  <p>The Android app asks for location permission so it can show your boat on the chart, record tracks, run the anchor alarm and give depths along your route. Your position is used on the device. With your permission it is also used while the app is in the background, but only while you have a track recording or the anchor alarm on, shown by a notification you can stop at any time.</p>
+  <p>When you use "Following you" for tides, or ask for sea conditions where you are, the app sends that position (rounded to about 10 m) to the tide and forecast services below, as it would for any other spot you pick on the map. This only happens when you ask for that information.</p>
+
+  <h2>What the apps send to other services</h2>
+  <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services as "SeaBathy". They send no names, accounts, files, advertising IDs or device identifiers.</p>
+  <table>
+    <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
+    <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery</td><td>Which map tiles to send (the area on screen)</td></tr>
+    <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search</td><td>The point or area, or the place name you search for</td></tr>
+    <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
+    <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
+    <tr><td>GMRT (Columbia University)</td><td>Free seabed depths</td><td>The area</td></tr>
+    <tr><td>Map links you add yourself</td><td>Whatever you added them for</td><td>Which tiles to send, under that provider's own terms</td></tr>
+  </table>
+  <p>Each of these services has its own privacy policy and may keep ordinary server logs. SeaBathy has no control over them and receives nothing from them about you.</p>
+
+  <h2>Debug log</h2>
+  <p>The app keeps a short log of what it did, on the device, so problems can be fixed. Web addresses in it have keys and passwords removed. It never leaves the device unless you choose "Export debug log" and share it yourself.</p>
+
+  <h2>This website</h2>
+  <p>seabathy.com sets no cookies and has no analytics or trackers. It is hosted by Cloudflare, which counts visits on its own servers (for example how many pages were viewed) without anything being added to the page. The app downloads are hosted on GitHub.</p>
+
+  <h2>Children</h2>
+  <p>SeaBathy is a general-audience app and is not directed at children. It collects no personal information from anyone.</p>
+
+  <h2>Changes and contact</h2>
+  <p>If this policy changes, the new version will be posted here with a new date. Questions? Open an issue on <a href="https://github.com/SeaBathy">SeaBathy's GitHub</a>.</p>
+</main>
+
+<footer class="footer">
+  <p class="footer-fine">© 2026 SeaBathy · MIT licence · Not for navigation.</p>
+</footer>
+</body>
+</html>
