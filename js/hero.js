@@ -1,14 +1,16 @@
 // The hero: real seabed from the IMAS bathymetry composite, drawn with plain WebGL2. Two
-// scenes take turns: a wide stretch of the central Great Barrier Reef, and one reef close up
-// at about 23 m per cell. Each turns slowly while its vertical exaggeration sweeps from 4x to
+// scenes take turns (or pick one with the Wide / Close-up switch): a wide stretch of the
+// central Great Barrier Reef at about 59 m per cell, and a reef edge at the survey's full 10 m. Each turns slowly while its vertical exaggeration sweeps from 4x to
 // 80x and back, the camera eases in and out, the colours cross-fade between palettes and the
 // contour lines fade on and off. No libraries. Falls back to a still picture without WebGL2,
 // and holds still for people who ask their system for reduced motion.
 
-// Heights files: size x size little-endian Int16, decimetres (negative = depth).
+// Heights files: size x size little-endian Int16 (negative = depth, in 1/unitsPerMetre m),
+// each row delta-encoded (every value after the first is the change from the one before),
+// then gzipped.
 const SCENES = [
-  { url: 'data/central-gbr.bin', size: 512, areaKm: 60.4, maxExag: 80, coords: '17°51.3′S 146°38.1′E', place: 'Central Great Barrier Reef, QLD' },
-  { url: 'data/reef-closeup.bin', size: 640, areaKm: 14.8, maxExag: 40, coords: '18°03.3′S 146°33.9′E', place: 'One reef close up, central GBR' }
+  { url: 'data/wide-1024.i16d.gz', size: 1024, unitsPerMetre: 10, areaKm: 60.4, maxExag: 80, coords: '17°51.3′S 146°38.1′E', place: 'Central Great Barrier Reef, QLD' },
+  { url: 'data/reef-1024.i16d.gz', size: 1024, unitsPerMetre: 100, areaKm: 9.74, maxExag: 40, coords: '18°01.5′S 146°35.5′E', place: 'A reef edge at 10 m detail, central GBR' }
 ];
 const SCENE_SECONDS = 36;     // each scene's turn, with a short fade at each end
 const SCENE_FADE = 1.2;
@@ -42,13 +44,20 @@ Promise.resolve().then(start).catch((error) => {
 async function loadScene(gl, scene) {
   const response = await fetch(scene.url);
   if (!response.ok) throw new Error(`${scene.url}: HTTP ${response.status}`);
-  const raw = new Int16Array(await response.arrayBuffer());
+  if (typeof DecompressionStream === 'undefined') throw new Error('DecompressionStream not available');
+  const unzipped = response.body.pipeThrough(new DecompressionStream('gzip'));
+  const raw = new Int16Array(await new Response(unzipped).arrayBuffer());
   if (raw.length !== scene.size * scene.size) throw new Error(`${scene.url}: unexpected size`);
+  // Undo the row delta-encoding (Int16Array wraps exactly as the encoder did).
+  for (let y = 0; y < scene.size; y++) {
+    const row = y * scene.size;
+    for (let x = 1; x < scene.size; x++) raw[row + x] += raw[row + x - 1];
+  }
 
   let min = Infinity;
   let max = -Infinity;
   for (const v of raw) { if (v < min) min = v; if (v > max) max = v; }
-  const depthRange = (max - min) / 10;                     // metres
+  const depthRange = (max - min) / scene.unitsPerMetre;   // metres
   const heights = new Float32Array(raw.length);
   for (let i = 0; i < raw.length; i++) heights[i] = (raw[i] - min) / (max - min); // 0 deepest .. 1 shallowest
 
@@ -115,7 +124,7 @@ async function start() {
 
   // Grid mesh, shared by both scenes: lighter on phones; the pixel shader lights it from
   // the full-resolution heights.
-  const grid = innerWidth < 760 ? 220 : 360;
+  const grid = innerWidth < 760 ? 320 : 720;
   const uvs = new Float32Array((grid + 1) * (grid + 1) * 2);
   for (let y = 0, k = 0; y <= grid; y++) for (let x = 0; x <= grid; x++) { uvs[k++] = x / grid; uvs[k++] = y / grid; }
   const indices = new Uint32Array(grid * grid * 6);
@@ -162,6 +171,23 @@ async function start() {
   new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
   addEventListener('resize', () => { needsStill = true; });
 
+  // Wide / Close-up switch. The scenes still take turns every SCENE_SECONDS; a click shows
+  // the chosen one now (fading it in) and the turns carry on from there.
+  let sceneOffset = 0;
+  let pickedAt = -Infinity;
+  let lastT = 0;
+  const sceneButtons = [...document.querySelectorAll('[data-scene]')];
+  for (const button of sceneButtons) {
+    button.addEventListener('click', () => {
+      const wanted = Number(button.dataset.scene);
+      if (wanted >= scenes.length) return;                 // still loading
+      const turn = Math.floor(lastT / SCENE_SECONDS);
+      sceneOffset = (((wanted - turn) % scenes.length) + scenes.length) % scenes.length;
+      pickedAt = lastT;
+      needsStill = true;
+    });
+  }
+
   const shown = {};
   const show = (el, key, text) => { if (el && shown[key] !== text) { el.textContent = text; shown[key] = text; } };
   const t0 = performance.now();
@@ -179,10 +205,14 @@ async function start() {
     resize(gl, canvas);
 
     // Which scene, and its fade in and out.
+    lastT = t;
     const turn = Math.floor(t / SCENE_SECONDS);
     const sceneT = t - turn * SCENE_SECONDS;
-    const scene = scenes[turn % scenes.length];
-    const fadeAmount = reduceMotion ? 1 : smoothstep(0, SCENE_FADE, sceneT) * (1 - smoothstep(SCENE_SECONDS - SCENE_FADE, SCENE_SECONDS, sceneT));
+    const sceneIndex = (turn + sceneOffset) % scenes.length;
+    const scene = scenes[sceneIndex];
+    const fadeAmount = reduceMotion ? 1
+      : smoothstep(0, SCENE_FADE, sceneT) * (1 - smoothstep(SCENE_SECONDS - SCENE_FADE, SCENE_SECONDS, sceneT))
+        * smoothstep(0, 0.6, t - pickedAt);
 
     // Slow orbit, gentle bob of the camera.
     const azimuth = -0.6 + t * (Math.PI * 2 / 90) + dragOffset;
@@ -250,6 +280,10 @@ async function start() {
     show(readoutContours, 'contours', contour > 0.3 ? `${scene.contourStep} m` : 'Off');
     show(readoutCoords, 'coords', scene.coords);
     show(readoutPlace, 'place', scene.place);
+    if (shown.scene !== sceneIndex) {
+      shown.scene = sceneIndex;
+      sceneButtons.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.scene) === sceneIndex)));
+    }
 
     if (!root.classList.contains('hero-ready')) root.classList.add('hero-ready');
   }
@@ -303,7 +337,9 @@ void main() {
   float diffuse = max(dot(n, l), 0.0);
   float spec = pow(max(dot(n, normalize(l + v)), 0.0), 60.0) * 0.28;
   float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0) * 0.12;
-  vec3 colour = base * (0.32 + 0.82 * diffuse) + spec + rim;
+  // Low ambient and a strong key light, plus a soft fill from the other side: crisp relief.
+  float fill = max(dot(n, normalize(vec3(0.6, 0.5, 0.45))), 0.0);
+  vec3 colour = base * (0.18 + 0.92 * diffuse + 0.16 * fill) + spec + rim;
 
   // Contour lines: the scene's step in the shallows, 50 m beyond 50 m.
   float step = depth < 50.0 ? uContourStep : 50.0;
