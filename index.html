@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SeaBathy: free 3D seabed maps for Australian waters</title>
-  <meta name="description" content="Free, open-source bathymetry apps for Australian waters: 10 m survey detail, 3D seabed views, offline maps, tides and sea conditions, and charts for your chartplotter.">
+  <meta name="application-name" content="SeaBathy">
+  <meta name="description" content="Free, open-source bathymetry apps for Australian waters: open any GeoTIFF or MBTiles as a 3D seabed, with offline maps, tides and sea conditions, and charts for your chartplotter.">
   <meta name="theme-color" content="#060b14">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
@@ -12,6 +13,64 @@
   <meta property="og:description" content="Free, open-source bathymetry apps for Australian waters. 3D seabed, offline maps, tides and plotter charts.">
   <meta property="og:image" content="img/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "#org",
+        "name": "SeaBathy",
+        "description": "Free, open-source bathymetry apps for Australian waters.",
+        "sameAs": ["https://github.com/SeaBathy"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "SeaBathy",
+        "operatingSystem": "Android",
+        "applicationCategory": "TravelApplication",
+        "description": "Open any GeoTIFF or MBTiles bathymetry in 2D and 3D, with offline maps, tides and sea conditions. Not for navigation.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+        "license": "https://opensource.org/licenses/MIT",
+        "downloadUrl": "https://github.com/SeaBathy/seabathy-android/releases/latest",
+        "publisher": { "@id": "#org" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "SeaBathy Desktop",
+        "operatingSystem": "Windows",
+        "applicationCategory": "TravelApplication",
+        "description": "SeaBathy for Windows: GeoTIFF and MBTiles bathymetry in 2D and 3D, offline maps, tides and route planning. Not for navigation.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+        "license": "https://opensource.org/licenses/MIT",
+        "downloadUrl": "https://github.com/SeaBathy/seabathy-desktop/releases/latest",
+        "publisher": { "@id": "#org" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "BathyPicker",
+        "operatingSystem": "Windows, macOS, Linux",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Draw a box over Australian waters and download one depth GeoTIFF from the IMAS bathymetry composite.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+        "license": "https://opensource.org/licenses/MIT",
+        "downloadUrl": "https://github.com/SeaBathy/BathyPicker/releases/latest",
+        "publisher": { "@id": "#org" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "AT5 Chart Maker",
+        "operatingSystem": "Windows",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Make your own depth charts and imagery for Simrad, Lowrance and B&G chartplotters. Not affiliated with Navico.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+        "license": "https://opensource.org/licenses/MIT",
+        "downloadUrl": "https://github.com/SeaBathy/AT5-Chart-Maker/releases/latest",
+        "publisher": { "@id": "#org" }
+      }
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="css/site.css">
   <script type="module" src="js/hero.js"></script>
   <script defer src="js/site.js"></script>
@@ -39,7 +98,7 @@
     <div class="hero-copy">
       <p class="eyebrow">Free &amp; open source · Australian waters</p>
       <h1>See the<br>seafloor.<br><span class="accent">In 3D.</span></h1>
-      <p class="lede">Survey-grade bathymetry down to 10&nbsp;m detail, a 3D seabed you can fly over, offline maps and charts for your plotter. No account, no subscription.</p>
+      <p class="lede">Open any bathymetry you have, any GeoTIFF or MBTiles at any resolution, and fly over it in 3D. Plus offline maps, tides and charts for your plotter. No account, no subscription.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#apps">Get the apps <span aria-hidden="true">→</span></a>
         <a class="btn btn-ghost" href="https://github.com/SeaBathy">View on GitHub</a>
@@ -47,23 +106,24 @@
     </div>
 
     <div class="hero-stage">
-      <canvas id="hero-canvas" aria-label="Rotating 3D model of the seabed on the central Great Barrier Reef, coloured by depth"></canvas>
+      <canvas id="hero-canvas" aria-label="Rotating 3D models of the seabed on the central Great Barrier Reef, coloured by depth"></canvas>
       <img class="hero-fallback" src="img/desktop-3d-reefs.webp" alt="3D seabed of reefs on the Great Barrier Reef, coloured by depth" width="1440" height="900">
       <div class="hero-readout hero-readout-place">
-        <span class="mono">17°51.3′S 146°38.1′E</span>
-        <span>Central Great Barrier Reef, QLD</span>
+        <span class="mono" id="hero-coords">17°51.3′S 146°38.1′E</span>
+        <span id="hero-place">Central Great Barrier Reef, QLD</span>
       </div>
       <div class="hero-readout hero-readout-live" aria-hidden="true">
         <span><small>Vertical exaggeration</small><b id="hero-exag" class="mono">12×</b></span>
         <span><small>Palette</small><b id="hero-palette">Spectrum</b></span>
+        <span><small>Contours</small><b id="hero-contours" class="mono">Off</b></span>
       </div>
-      <p class="hero-credit">Seabed: IMAS 10 m bathymetry composite, CC BY 4.0. Live 3D, drag to turn.</p>
+      <p class="hero-credit">Seabed: IMAS bathymetry composite (CC BY 4.0), resampled. Live 3D, drag to turn.</p>
     </div>
   </section>
 
   <!-- Numbers -->
   <section class="stats" aria-label="At a glance">
-    <div><b>10&nbsp;m</b><span>survey detail</span></div>
+    <div><b>Any file</b><span>GeoTIFF &amp; MBTiles, any resolution</span></div>
     <div><b>100×</b><span>vertical exaggeration</span></div>
     <div><b>Offline</b><span>maps, tides &amp; conditions</span></div>
     <div><b>$0</b><span>no account, ads or tracking</span></div>
@@ -84,7 +144,7 @@
         <div class="app-body">
           <p class="tag">Android</p>
           <h3>SeaBathy</h3>
-          <p>The seabed in your pocket. Surveys in 2D and 3D, offline maps, tides, sea conditions, routes and an anchor alarm.</p>
+          <p>The seabed in your pocket. Open any GeoTIFF or MBTiles in 2D and 3D, with offline maps, tides, sea conditions, routes and an anchor alarm.</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-android/releases/latest">Download APK</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-android">Source</a>
@@ -99,7 +159,7 @@
         <div class="app-body">
           <p class="tag">Windows</p>
           <h3>SeaBathy Desktop</h3>
-          <p>Plan on the big screen. The same maps, surveys and 3D, sharp to every pixel of the data.</p>
+          <p>Plan on the big screen. The same maps and 3D for your own GeoTIFF and MBTiles files, sharp to every pixel of the data.</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-desktop/releases/latest">Download for Windows</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-desktop">Source</a>
@@ -109,12 +169,12 @@
 
       <article class="app">
         <div class="app-media">
-          <div class="window"><img src="img/bathypicker-start.webp" alt="BathyPicker: drag a box over Australian waters" width="1440" height="900" loading="lazy"></div>
+          <div class="window"><img src="img/bathypicker-result.webp" alt="A depth GeoTIFF made with BathyPicker, open in SeaBathy Desktop" width="1440" height="900" loading="lazy"></div>
         </div>
         <div class="app-body">
           <p class="tag">Windows · macOS · Linux</p>
           <h3>BathyPicker</h3>
-          <p>Draw a box anywhere in Australian waters and get one depth GeoTIFF, up to 10&nbsp;m detail.</p>
+          <p>No data of your own? Draw a box anywhere in Australian waters and get a free depth GeoTIFF from the IMAS survey composite, up to 10&nbsp;m detail.</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/BathyPicker/releases/latest">Download</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/BathyPicker">Source</a>
@@ -147,11 +207,11 @@
     </div>
 
     <div class="feature">
-      <div class="feature-media"><div class="window"><img src="img/desktop-3d-closeup.webp" alt="3D close-up of a reef wall at 30 times vertical exaggeration" width="1440" height="900" loading="lazy"></div></div>
+      <div class="feature-media"><div class="window"><img src="img/desktop-3d-depth.webp" alt="3D view of reefs coloured by depth at 10 times vertical exaggeration" width="1440" height="900" loading="lazy"></div></div>
       <div class="feature-copy">
         <p class="tag">3D seabed</p>
         <h3>Every ledge, wall and bommie.</h3>
-        <p>Fly over the survey in 3D, stretch the relief up to 100× and drape satellite imagery over it.</p>
+        <p>Fly over any depth file in 3D, stretch the relief up to 100×, add contours and drape maps over it.</p>
       </div>
     </div>
 
@@ -166,11 +226,11 @@
 
     <div class="feature feature-phones">
       <div class="feature-media">
-        <div class="phone"><img src="img/android-3d-satellite.webp" alt="3D view of the Whitsundays with satellite imagery on a phone" width="720" height="1607" loading="lazy"></div>
+        <div class="phone"><img src="img/android-tides.webp" alt="Tide chart with highs and lows on a phone" width="720" height="1607" loading="lazy"></div>
         <div class="phone phone-offset"><img src="img/android-conditions.webp" alt="Ocean currents and wind on a phone" width="720" height="1607" loading="lazy"></div>
       </div>
       <div class="feature-copy">
-        <p class="tag">Offline · conditions</p>
+        <p class="tag">Tides · conditions · offline</p>
         <h3>No signal? No problem.</h3>
         <p>Save maps, tides, wind, swell, currents and sea temperature before you leave the ramp.</p>
       </div>
@@ -199,13 +259,13 @@
   <section class="section" id="how">
     <div class="section-head">
       <p class="eyebrow">How it works</p>
-      <h2>Pick. Explore. Go.</h2>
+      <h2>Load. Explore. Go.</h2>
     </div>
     <ol class="steps">
       <li>
         <span class="step-num">1</span>
-        <h3>Pick your patch</h3>
-        <p>Draw a box in BathyPicker and download the survey for it.</p>
+        <h3>Bring your data</h3>
+        <p>Any GeoTIFF or MBTiles you have, or draw a box in BathyPicker for free survey data.</p>
       </li>
       <li>
         <span class="step-num">2</span>
@@ -223,16 +283,17 @@
   <!-- Data -->
   <section class="section section-data" id="data">
     <div class="section-head">
-      <p class="eyebrow">Open data</p>
-      <h2>Built on the best<br>public data.</h2>
+      <p class="eyebrow">Your data · open data</p>
+      <h2>Your files, plus the<br>best public data.</h2>
     </div>
     <ul class="sources">
-      <li><b>IMAS</b><span>Australian bathymetry composite, 10 m · CC BY 4.0</span></li>
+      <li><b>Your own files</b><span>Any GeoTIFF or MBTiles, at any resolution</span></li>
+      <li><b>IMAS</b><span>Australian bathymetry composite, via BathyPicker · CC BY 4.0</span></li>
       <li><b>GMRT</b><span>Global seabed depths · CC BY 4.0</span></li>
       <li><b>Open-Meteo</b><span>Tides, wind, waves &amp; currents · CC BY 4.0</span></li>
       <li><b>NOAA &amp; NASA</b><span>Sea temperature, chlorophyll, true colour</span></li>
       <li><b>Copernicus</b><span>Sentinel-2 cloudless imagery by EOX</span></li>
-      <li><b>OpenStreetMap</b><span>Basemaps via OpenFreeMap</span></li>
+      <li><b>OpenStreetMap</b><span>Basemaps via OpenFreeMap · ODbL</span></li>
     </ul>
     <div class="notice">
       <b>Not for navigation.</b>
@@ -263,7 +324,7 @@
     <a href="https://github.com/SeaBathy/BathyPicker">BathyPicker</a>
     <a href="https://github.com/SeaBathy/AT5-Chart-Maker">AT5 Chart Maker</a>
   </div>
-  <p class="footer-fine">© 2026 SeaBathy · MIT licence · Not for navigation. Hero seabed: Flukes, E. (2026), Multi-resolution bathymetry composite surface for Australian waters, IMAS, <a href="https://doi.org/10.25959/Y9VF-V723">doi:10.25959/Y9VF-V723</a>, CC BY 4.0. Simrad, Lowrance, B&amp;G and Navico are trademarks of their owners; SeaBathy is not affiliated with them.</p>
+  <p class="footer-fine">© 2026 SeaBathy · MIT licence · Not for navigation. Hero seabed: Flukes, E. (2026), Multi-resolution bathymetry composite surface for Australian waters, IMAS, <a href="https://doi.org/10.25959/Y9VF-V723">doi:10.25959/Y9VF-V723</a>, CC BY 4.0, resampled to about 120 m (wide view) and 23 m (reef close-up) per cell. Screenshots show map data © OpenStreetMap contributors (OpenFreeMap, OpenMapTiles) and Open-Meteo / Copernicus data, as credited in each. SeaBathy is not affiliated with IMAS, the University of Tasmania or any data provider. Simrad, Lowrance, B&amp;G and Navico are trademarks of their owners; SeaBathy is not affiliated with them.</p>
 </footer>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">

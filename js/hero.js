@@ -1,12 +1,17 @@
-// The hero: real seabed from the IMAS 10 m bathymetry composite (central Great Barrier
-// Reef, resampled to 512 x 512), drawn with plain WebGL2. It turns slowly, swells and
-// flattens its vertical exaggeration and cross-fades between colour palettes, on a loop.
-// No libraries. Falls back to a still picture without WebGL2, and holds still for
-// people who ask their system for reduced motion.
+// The hero: real seabed from the IMAS bathymetry composite, drawn with plain WebGL2. Two
+// scenes take turns: a wide stretch of the central Great Barrier Reef, and one reef close up
+// at about 23 m per cell. Each turns slowly while its vertical exaggeration sweeps from 4x to
+// 80x and back, the camera eases in and out, the colours cross-fade between palettes and the
+// contour lines fade on and off. No libraries. Falls back to a still picture without WebGL2,
+// and holds still for people who ask their system for reduced motion.
 
-const SIZE = 512;                 // heights file: SIZE x SIZE little-endian Int16, decimetres (negative = depth)
-const AREA_KM = 60.4;             // the tile's width on the ground
-const DATA_URL = 'data/central-gbr.bin';
+// Heights files: size x size little-endian Int16, decimetres (negative = depth).
+const SCENES = [
+  { url: 'data/central-gbr.bin', size: 512, areaKm: 60.4, maxExag: 80, coords: '17°51.3′S 146°38.1′E', place: 'Central Great Barrier Reef, QLD' },
+  { url: 'data/reef-closeup.bin', size: 640, areaKm: 14.8, maxExag: 40, coords: '18°03.3′S 146°33.9′E', place: 'One reef close up, central GBR' }
+];
+const SCENE_SECONDS = 36;     // each scene's turn, with a short fade at each end
+const SCENE_FADE = 1.2;
 
 const PALETTES = [
   // Shallow -> deep.
@@ -20,21 +25,25 @@ const canvas = document.getElementById('hero-canvas');
 const root = document.documentElement;
 const readoutExag = document.getElementById('hero-exag');
 const readoutPalette = document.getElementById('hero-palette');
+const readoutContours = document.getElementById('hero-contours');
+const readoutCoords = document.getElementById('hero-coords');
+const readoutPlace = document.getElementById('hero-place');
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// For checking a moment of the loop: ?t=12 holds the animation at 12 s.
+const frozenAt = Number.parseFloat(new URLSearchParams(location.search).get('t'));
 
-start().catch((error) => {
+// Starts once this whole file has run (the shaders are defined further down).
+Promise.resolve().then(start).catch((error) => {
   console.warn('3D hero unavailable:', error);
   root.classList.add('no-webgl');
 });
 
-async function start() {
-  const gl = canvas && canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true });
-  if (!gl) throw new Error('WebGL2 not available');
-
-  const response = await fetch(DATA_URL);
-  if (!response.ok) throw new Error(`heights: HTTP ${response.status}`);
+/** Loads one scene's heights into textures, with its colour-spread table. */
+async function loadScene(gl, scene) {
+  const response = await fetch(scene.url);
+  if (!response.ok) throw new Error(`${scene.url}: HTTP ${response.status}`);
   const raw = new Int16Array(await response.arrayBuffer());
-  if (raw.length !== SIZE * SIZE) throw new Error('heights: unexpected size');
+  if (raw.length !== scene.size * scene.size) throw new Error(`${scene.url}: unexpected size`);
 
   let min = Infinity;
   let max = -Infinity;
@@ -44,12 +53,14 @@ async function start() {
   for (let i = 0; i < raw.length; i++) heights[i] = (raw[i] - min) / (max - min); // 0 deepest .. 1 shallowest
 
   // Colour spread: three parts "by how much seabed sits at each depth" (histogram equalised),
-  // one part logarithmic, so the reefs, the lagoon floor and the drop-off each get their own colours.
+  // one part logarithmic, so the reef tops, the lagoon floor and the drop-off each get their own colours.
   const bins = new Float32Array(256);
   for (const h of heights) bins[Math.min(255, Math.floor(h * 256))]++;
   const lut = new Float32Array(256);
   let below = 0;
+  let typicalH = 0.5;   // the median seabed height: where the camera aims
   for (let i = 0; i < 256; i++) {
+    if (below < heights.length / 2 && below + bins[i] >= heights.length / 2) typicalH = (i + 0.5) / 256;
     below += bins[i];
     const h = (i + 0.5) / 256;
     const depth = (1 - h) * depthRange;
@@ -58,23 +69,11 @@ async function start() {
     lut[i] = Math.min(1, Math.max(0, 0.72 * byArea + 0.28 * byLog));
   }
 
-  const program = link(gl, VERTEX, FRAGMENT);
-  gl.useProgram(program);
-  const u = uniforms(gl, program, ['uMvp', 'uH', 'uPal', 'uExag', 'uTexel', 'uLight', 'uEye', 'uPalA', 'uPalB', 'uMix', 'uDepthRange', 'uContour', 'uRows', 'uLut']);
-
-  // Heights: half-float texture, filterable everywhere WebGL2 runs.
   const heightTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, heightTex);
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, SIZE, SIZE, 0, gl.RED, gl.FLOAT, heights);
-  setSampling(gl, gl.LINEAR);
-
-  // Palettes: one row each, 256 wide.
-  const palTex = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE1);
-  gl.bindTexture(gl.TEXTURE_2D, palTex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 256, PALETTES.length, 0, gl.RGBA, gl.UNSIGNED_BYTE, paletteBytes());
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, scene.size, scene.size, 0, gl.RED, gl.FLOAT, heights);
   setSampling(gl, gl.LINEAR);
 
   const lutTex = gl.createTexture();
@@ -83,8 +82,40 @@ async function start() {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, 256, 1, 0, gl.RED, gl.FLOAT, lut);
   setSampling(gl, gl.LINEAR);
 
-  // Grid mesh: lighter on phones; the pixel shader lights it from the full-resolution heights.
-  const grid = innerWidth < 760 ? 220 : 340;
+  return {
+    ...scene,
+    heightTex,
+    lutTex,
+    depthRange,
+    typicalH,
+    trueScale: depthRange / (scene.areaKm * 1000),     // one exaggeration step, in tile widths
+    contourStep: depthRange < 120 ? 5 : 10             // metres between contour lines in the shallows
+  };
+}
+
+async function start() {
+  const gl = canvas && canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true });
+  if (!gl) throw new Error('WebGL2 not available');
+
+  const program = link(gl, VERTEX, FRAGMENT);
+  gl.useProgram(program);
+  const u = uniforms(gl, program, ['uMvp', 'uH', 'uPal', 'uExag', 'uTexel', 'uLight', 'uEye', 'uPalA', 'uPalB', 'uMix',
+    'uDepthRange', 'uContour', 'uContourStep', 'uRows', 'uLut', 'uFade']);
+
+  // The first scene before anything shows; the close-up loads behind it.
+  const scenes = [await loadScene(gl, SCENES[0])];
+  loadScene(gl, SCENES[1]).then((s) => scenes.push(s)).catch((e) => console.warn('second 3D scene unavailable:', e));
+
+  // Palettes: one row each, 256 wide.
+  const palTex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, palTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 256, PALETTES.length, 0, gl.RGBA, gl.UNSIGNED_BYTE, paletteBytes());
+  setSampling(gl, gl.LINEAR);
+
+  // Grid mesh, shared by both scenes: lighter on phones; the pixel shader lights it from
+  // the full-resolution heights.
+  const grid = innerWidth < 760 ? 220 : 360;
   const uvs = new Float32Array((grid + 1) * (grid + 1) * 2);
   for (let y = 0, k = 0; y <= grid; y++) for (let x = 0; x <= grid; x++) { uvs[k++] = x / grid; uvs[k++] = y / grid; }
   const indices = new Uint32Array(grid * grid * 6);
@@ -109,16 +140,11 @@ async function start() {
   gl.uniform1i(u.uH, 0);
   gl.uniform1i(u.uPal, 1);
   gl.uniform1i(u.uLut, 2);
-  gl.uniform2f(u.uTexel, 1 / SIZE, 1 / SIZE);
-  gl.uniform1f(u.uDepthRange, depthRange);
   gl.uniform1f(u.uRows, PALETTES.length);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.clearColor(0, 0, 0, 0);
-
-  // One metre of relief, in tile widths, at true scale.
-  const trueScale = depthRange / (AREA_KM * 1000);
 
   // Drag sideways to turn it; it carries on by itself afterwards.
   let dragOffset = 0;
@@ -136,8 +162,8 @@ async function start() {
   new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
   addEventListener('resize', () => { needsStill = true; });
 
-  let shownExag = '';
-  let shownPalette = '';
+  const shown = {};
+  const show = (el, key, text) => { if (el && shown[key] !== text) { el.textContent = text; shown[key] = text; } };
   const t0 = performance.now();
 
   function loop(now) {
@@ -149,14 +175,23 @@ async function start() {
   }
 
   function frame(now) {
-    const t = reduceMotion ? 6 : (now - t0) / 1000;
+    const t = Number.isFinite(frozenAt) ? frozenAt : reduceMotion ? 6 : (now - t0) / 1000;
     resize(gl, canvas);
 
-    // Slow orbit, gentle bob of the camera, breathing vertical exaggeration.
+    // Which scene, and its fade in and out.
+    const turn = Math.floor(t / SCENE_SECONDS);
+    const sceneT = t - turn * SCENE_SECONDS;
+    const scene = scenes[turn % scenes.length];
+    const fadeAmount = reduceMotion ? 1 : smoothstep(0, SCENE_FADE, sceneT) * (1 - smoothstep(SCENE_SECONDS - SCENE_FADE, SCENE_SECONDS, sceneT));
+
+    // Slow orbit, gentle bob of the camera.
     const azimuth = -0.6 + t * (Math.PI * 2 / 90) + dragOffset;
     const elevation = 0.5 + 0.12 * Math.sin(t * 0.21);
-    const exag = 9 + 7 * Math.sin(t * (Math.PI * 2 / 16) - Math.PI / 2) + 4;  // 6x .. 20x
-    const heightScale = trueScale * exag;
+    // Exaggeration sweeps 4x -> the scene's top (80x wide, 40x close up) -> 4x every 24 s,
+    // on a log scale so each step feels even.
+    const sweep = (1 - Math.cos(t * (Math.PI * 2 / 24))) / 2;
+    const exag = 4 * Math.pow(scene.maxExag / 4, sweep);
+    const heightScale = scene.trueScale * exag;
 
     // Palette: 7 s each, the last 2.2 s a cross-fade into the next.
     const hold = 7;
@@ -167,10 +202,20 @@ async function start() {
     const local = (phase - Math.floor(phase)) * hold;
     const mix = smoothstep(hold - fade, hold, local);
 
+    // Contour lines: on for about half of every 20 s, fading in and out.
+    const contourWave = 0.5 + 0.5 * Math.sin(t * (Math.PI * 2 / 20) - 0.4);
+    const contour = smoothstep(0.35, 0.65, contourWave) * 0.75;
+
     const aspect = canvas.width / canvas.height;
     const narrow = aspect < 1.1;
-    const radius = narrow ? 1.5 : 1.22;
-    const target = [0, heightScale * 0.45, 0];
+    // Slow zoom in and out (31 s, out of step with the other loops so the view keeps changing),
+    // backing off a little as the relief grows so the tall parts stay in frame.
+    const zoom = 1 + 0.2 * Math.sin(t * (Math.PI * 2 / 31) + 1.2);
+    let radius = ((narrow ? 1.5 : 1.22) + heightScale * 0.4) * zoom;
+    const target = [0, heightScale * scene.typicalH, 0];
+    // Never let the camera dip into the reef tops: keep the same angle and back away instead.
+    const minEyeY = heightScale * 1.05 + 0.08;
+    radius = Math.max(radius, (minEyeY - target[1]) / Math.sin(elevation));
     const eye = [
       target[0] + radius * Math.cos(elevation) * Math.sin(azimuth),
       target[1] + radius * Math.sin(elevation),
@@ -178,22 +223,31 @@ async function start() {
     ];
     const mvp = multiply(perspective(narrow ? 0.72 : 0.6, aspect, 0.02, 20), lookAt(eye, target, [0, 1, 0]));
 
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, scene.heightTex);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, scene.lutTex);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.uniformMatrix4fv(u.uMvp, false, mvp);
+    gl.uniform2f(u.uTexel, 1 / scene.size, 1 / scene.size);
+    gl.uniform1f(u.uDepthRange, scene.depthRange);
+    gl.uniform1f(u.uContourStep, scene.contourStep);
     gl.uniform1f(u.uExag, heightScale);
     gl.uniform3f(u.uLight, -0.55, 0.75, -0.35);
     gl.uniform3f(u.uEye, eye[0], eye[1], eye[2]);
     gl.uniform1f(u.uPalA, a);
     gl.uniform1f(u.uPalB, b);
     gl.uniform1f(u.uMix, mix);
-    gl.uniform1f(u.uContour, 0.55);
+    gl.uniform1f(u.uContour, contour);
+    gl.uniform1f(u.uFade, fadeAmount);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_INT, 0);
 
-    const exagText = `${Math.round(exag)}×`;
-    if (readoutExag && exagText !== shownExag) { readoutExag.textContent = exagText; shownExag = exagText; }
-    const palName = PALETTES[mix > 0.5 ? b : a].name;
-    if (readoutPalette && palName !== shownPalette) { readoutPalette.textContent = palName; shownPalette = palName; }
+    show(readoutExag, 'exag', `${Math.round(exag)}×`);
+    show(readoutPalette, 'palette', PALETTES[mix > 0.5 ? b : a].name);
+    show(readoutContours, 'contours', contour > 0.3 ? `${scene.contourStep} m` : 'Off');
+    show(readoutCoords, 'coords', scene.coords);
+    show(readoutPlace, 'place', scene.place);
 
     if (!root.classList.contains('hero-ready')) root.classList.add('hero-ready');
   }
@@ -224,7 +278,7 @@ in vec3 vPos;
 uniform sampler2D uH;
 uniform sampler2D uPal;
 uniform sampler2D uLut;
-uniform float uExag, uPalA, uPalB, uMix, uDepthRange, uContour, uRows;
+uniform float uExag, uPalA, uPalB, uMix, uDepthRange, uContour, uContourStep, uRows, uFade;
 uniform vec2 uTexel;
 uniform vec3 uLight, uEye;
 out vec4 outColour;
@@ -249,8 +303,8 @@ void main() {
   float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0) * 0.12;
   vec3 colour = base * (0.32 + 0.82 * diffuse) + spec + rim;
 
-  // Contour lines every 10 m to 50 m, 50 m beyond.
-  float step = depth < 50.0 ? 10.0 : 50.0;
+  // Contour lines: the scene's step in the shallows, 50 m beyond 50 m.
+  float step = depth < 50.0 ? uContourStep : 50.0;
   float c = depth / step;
   float line = 1.0 - smoothstep(0.0, fwidth(c) * 1.3, abs(fract(c - 0.5) - 0.5));
   colour = mix(colour, colour * 0.55, line * uContour);
@@ -258,7 +312,8 @@ void main() {
   // Soft edges so the tile floats in the page.
   vec2 e = min(vUv, 1.0 - vUv);
   float edge = smoothstep(0.0, 0.07, min(e.x, e.y));
-  outColour = vec4(colour * edge, edge);
+  float alpha = edge * uFade;
+  outColour = vec4(colour * alpha, alpha);
 }`;
 
 // ------------------------------------------------------------------ helpers
