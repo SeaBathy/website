@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SeaBathy: free 3D seabed maps for Australian waters</title>
+  <meta name="description" content="Free, open-source bathymetry apps for Australian waters: 10 m survey detail, 3D seabed views, offline maps, tides and sea conditions, and charts for your chartplotter.">
+  <meta name="theme-color" content="#060b14">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SeaBathy: see the seafloor in 3D">
+  <meta property="og:description" content="Free, open-source bathymetry apps for Australian waters. 3D seabed, offline maps, tides and plotter charts.">
+  <meta property="og:image" content="img/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/hero.js"></script>
+  <script defer src="js/site.js"></script>
+</head>
+<body>
+
+<header class="nav" id="top">
+  <a class="brand" href="#top" aria-label="SeaBathy home">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg>
+    <span>SeaBathy</span>
+  </a>
+  <nav class="nav-links" aria-label="Main">
+    <a href="#apps">Apps</a>
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#data">Data</a>
+  </nav>
+  <a class="btn btn-small btn-primary" href="#apps">Get the apps</a>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Free &amp; open source · Australian waters</p>
+      <h1>See the<br>seafloor.<br><span class="accent">In 3D.</span></h1>
+      <p class="lede">Survey-grade bathymetry down to 10&nbsp;m detail, a 3D seabed you can fly over, offline maps and charts for your plotter. No account, no subscription.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#apps">Get the apps <span aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="https://github.com/SeaBathy">View on GitHub</a>
+      </div>
+    </div>
+
+    <div class="hero-stage">
+      <canvas id="hero-canvas" aria-label="Rotating 3D model of the seabed on the central Great Barrier Reef, coloured by depth"></canvas>
+      <img class="hero-fallback" src="img/desktop-3d-reefs.webp" alt="3D seabed of reefs on the Great Barrier Reef, coloured by depth" width="1440" height="900">
+      <div class="hero-readout hero-readout-place">
+        <span class="mono">17°51.3′S 146°38.1′E</span>
+        <span>Central Great Barrier Reef, QLD</span>
+      </div>
+      <div class="hero-readout hero-readout-live" aria-hidden="true">
+        <span><small>Vertical exaggeration</small><b id="hero-exag" class="mono">12×</b></span>
+        <span><small>Palette</small><b id="hero-palette">Spectrum</b></span>
+      </div>
+      <p class="hero-credit">Seabed: IMAS 10 m bathymetry composite, CC BY 4.0. Live 3D, drag to turn.</p>
+    </div>
+  </section>
+
+  <!-- Numbers -->
+  <section class="stats" aria-label="At a glance">
+    <div><b>10&nbsp;m</b><span>survey detail</span></div>
+    <div><b>100×</b><span>vertical exaggeration</span></div>
+    <div><b>Offline</b><span>maps, tides &amp; conditions</span></div>
+    <div><b>$0</b><span>no account, ads or tracking</span></div>
+  </section>
+
+  <!-- Apps -->
+  <section class="section" id="apps">
+    <div class="section-head">
+      <p class="eyebrow">Four apps · one toolkit</p>
+      <h2>Everything from survey<br>to sounder.</h2>
+    </div>
+
+    <div class="apps">
+      <article class="app app-phone">
+        <div class="app-media">
+          <div class="phone"><img src="img/android-chart.webp" alt="SeaBathy for Android showing reefs coloured by depth" width="720" height="1607" loading="lazy"></div>
+        </div>
+        <div class="app-body">
+          <p class="tag">Android</p>
+          <h3>SeaBathy</h3>
+          <p>The seabed in your pocket. Surveys in 2D and 3D, offline maps, tides, sea conditions, routes and an anchor alarm.</p>
+          <div class="app-actions">
+            <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-android/releases/latest">Download APK</a>
+            <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-android">Source</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="app">
+        <div class="app-media">
+          <div class="window"><img src="img/desktop-3d-reefs.webp" alt="SeaBathy Desktop 3D view of reefs" width="1440" height="900" loading="lazy"></div>
+        </div>
+        <div class="app-body">
+          <p class="tag">Windows</p>
+          <h3>SeaBathy Desktop</h3>
+          <p>Plan on the big screen. The same maps, surveys and 3D, sharp to every pixel of the data.</p>
+          <div class="app-actions">
+            <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-desktop/releases/latest">Download for Windows</a>
+            <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-desktop">Source</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="app">
+        <div class="app-media">
+          <div class="window"><img src="img/bathypicker-start.webp" alt="BathyPicker: drag a box over Australian waters" width="1440" height="900" loading="lazy"></div>
+        </div>
+        <div class="app-body">
+          <p class="tag">Windows · macOS · Linux</p>
+          <h3>BathyPicker</h3>
+          <p>Draw a box anywhere in Australian waters and get one depth GeoTIFF, up to 10&nbsp;m detail.</p>
+          <div class="app-actions">
+            <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/BathyPicker/releases/latest">Download</a>
+            <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/BathyPicker">Source</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="app">
+        <div class="app-media">
+          <div class="window"><img src="img/at5-app.webp" alt="AT5 Chart Maker window" width="1096" height="511" loading="lazy"></div>
+        </div>
+        <div class="app-body">
+          <p class="tag">Windows · for Simrad, Lowrance &amp; B&amp;G</p>
+          <h3>AT5 Chart Maker</h3>
+          <p>Put your own depth charts and imagery on your chartplotter's SD card.</p>
+          <div class="app-actions">
+            <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/AT5-Chart-Maker/releases/latest">Download</a>
+            <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/AT5-Chart-Maker">Source</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="section-head">
+      <p class="eyebrow">Features</p>
+      <h2>Built for reading<br>the bottom.</h2>
+    </div>
+
+    <div class="feature">
+      <div class="feature-media"><div class="window"><img src="img/desktop-3d-closeup.webp" alt="3D close-up of a reef wall at 30 times vertical exaggeration" width="1440" height="900" loading="lazy"></div></div>
+      <div class="feature-copy">
+        <p class="tag">3D seabed</p>
+        <h3>Every ledge, wall and bommie.</h3>
+        <p>Fly over the survey in 3D, stretch the relief up to 100× and drape satellite imagery over it.</p>
+      </div>
+    </div>
+
+    <div class="feature feature-flip">
+      <div class="feature-media"><div class="window"><img src="img/desktop-colours.webp" alt="Depth colours: palette and depth range settings" width="1440" height="900" loading="lazy"></div></div>
+      <div class="feature-copy">
+        <p class="tag">Depth colours</p>
+        <h3>Colour it your way.</h3>
+        <p>Palettes, relief shading and a depth range you set, so the structure you care about stands out.</p>
+      </div>
+    </div>
+
+    <div class="feature feature-phones">
+      <div class="feature-media">
+        <div class="phone"><img src="img/android-3d-satellite.webp" alt="3D view of the Whitsundays with satellite imagery on a phone" width="720" height="1607" loading="lazy"></div>
+        <div class="phone phone-offset"><img src="img/android-conditions.webp" alt="Ocean currents and wind on a phone" width="720" height="1607" loading="lazy"></div>
+      </div>
+      <div class="feature-copy">
+        <p class="tag">Offline · conditions</p>
+        <h3>No signal? No problem.</h3>
+        <p>Save maps, tides, wind, swell, currents and sea temperature before you leave the ramp.</p>
+      </div>
+    </div>
+
+    <div class="feature feature-flip">
+      <div class="feature-media"><div class="window"><img src="img/desktop-route.webp" alt="Planning a route with depths along each leg" width="1440" height="900" loading="lazy"></div></div>
+      <div class="feature-copy">
+        <p class="tag">Plan</p>
+        <h3>Plan the run.</h3>
+        <p>Waypoints and routes with the survey depth checked along every leg. GPX in and out.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-media"><div class="window window-square"><img src="img/at5-imagery.webp" alt="Bathymetry imagery made into a chartplotter chart" width="896" height="896" loading="lazy"></div></div>
+      <div class="feature-copy">
+        <p class="tag">Chartplotter</p>
+        <h3>From survey to sounder.</h3>
+        <p>Turn depth contours or coloured bathymetry into charts for Simrad, Lowrance and B&amp;G units.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p>
+      <h2>Pick. Explore. Go.</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <h3>Pick your patch</h3>
+        <p>Draw a box in BathyPicker and download the survey for it.</p>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <h3>Explore it</h3>
+        <p>Open it in SeaBathy on your phone or PC. Fly over it in 3D and drop marks.</p>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <h3>Take it out</h3>
+        <p>Everything works offline on the phone, or goes onto your plotter with AT5 Chart Maker.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Data -->
+  <section class="section section-data" id="data">
+    <div class="section-head">
+      <p class="eyebrow">Open data</p>
+      <h2>Built on the best<br>public data.</h2>
+    </div>
+    <ul class="sources">
+      <li><b>IMAS</b><span>Australian bathymetry composite, 10 m · CC BY 4.0</span></li>
+      <li><b>GMRT</b><span>Global seabed depths · CC BY 4.0</span></li>
+      <li><b>Open-Meteo</b><span>Tides, wind, waves &amp; currents · CC BY 4.0</span></li>
+      <li><b>NOAA &amp; NASA</b><span>Sea temperature, chlorophyll, true colour</span></li>
+      <li><b>Copernicus</b><span>Sentinel-2 cloudless imagery by EOX</span></li>
+      <li><b>OpenStreetMap</b><span>Basemaps via OpenFreeMap</span></li>
+    </ul>
+    <div class="notice">
+      <b>Not for navigation.</b>
+      SeaBathy is for research, planning and interest. It is not an official nautical chart. Always carry official charts and use proper navigation equipment.
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>Get a better look at the bottom.</h2>
+    <p>Free for everyone. Open source under the MIT licence.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#apps">Get the apps <span aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost" href="https://github.com/SeaBathy">View on GitHub</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">
+    <a class="brand" href="#top"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span>SeaBathy</span></a>
+    <p>Free, open-source bathymetry apps for Australian waters.</p>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/SeaBathy/seabathy-android">SeaBathy for Android</a>
+    <a href="https://github.com/SeaBathy/seabathy-desktop">SeaBathy Desktop</a>
+    <a href="https://github.com/SeaBathy/BathyPicker">BathyPicker</a>
+    <a href="https://github.com/SeaBathy/AT5-Chart-Maker">AT5 Chart Maker</a>
+  </div>
+  <p class="footer-fine">© 2026 SeaBathy · MIT licence · Not for navigation. Hero seabed: Flukes, E. (2026), Multi-resolution bathymetry composite surface for Australian waters, IMAS, <a href="https://doi.org/10.25959/Y9VF-V723">doi:10.25959/Y9VF-V723</a>, CC BY 4.0. Simrad, Lowrance, B&amp;G and Navico are trademarks of their owners; SeaBathy is not affiliated with them.</p>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32">
+    <rect width="32" height="32" rx="8" fill="#0e7490"/>
+    <path d="M4 12c3-2.5 6-2.5 9 0s6 2.5 9 0 4.5-2 6-1" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M4 26l6-8 4 4 5-7 5 5 4-3v9z" fill="#ccfbf1"/>
+  </symbol>
+</svg>
+
+</body>
+</html>
