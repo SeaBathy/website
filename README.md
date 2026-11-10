@@ -19,7 +19,7 @@ data, because browsers block `fetch` from `file://`.)
 
 ## Hosting
 
-Hosted on Cloudflare Pages, connected to this repository: every push to `main` goes live in
+Live at https://seabathy.com. Hosted on Cloudflare Pages, connected to this repository: every push to `main` goes live in
 about a minute. Build command: none. Output directory: `/`. `_headers` sets caching and
 security headers.
 

@@ -11,16 +11,30 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="SeaBathy: see the seafloor in 3D">
   <meta property="og:description" content="Free, open-source bathymetry apps for Australian waters. 3D seabed, offline maps, tides and plotter charts.">
-  <meta property="og:image" content="img/og.jpg">
+  <link rel="canonical" href="https://seabathy.com/">
+  <meta property="og:url" content="https://seabathy.com/">
+  <meta property="og:site_name" content="SeaBathy">
+  <meta property="og:image" content="https://seabathy.com/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://seabathy.com/img/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
-        "@id": "#org",
+        "@type": "WebSite",
         "name": "SeaBathy",
+        "url": "https://seabathy.com/",
+        "publisher": { "@id": "https://seabathy.com/#org" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://seabathy.com/#org",
+        "name": "SeaBathy",
+        "url": "https://seabathy.com/",
+        "logo": "https://seabathy.com/favicon.svg",
         "description": "Free, open-source bathymetry apps for Australian waters.",
         "sameAs": ["https://github.com/SeaBathy"]
       },
@@ -33,7 +47,7 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
         "license": "https://opensource.org/licenses/MIT",
         "downloadUrl": "https://github.com/SeaBathy/seabathy-android/releases/latest",
-        "publisher": { "@id": "#org" }
+        "publisher": { "@id": "https://seabathy.com/#org" }
       },
       {
         "@type": "SoftwareApplication",
@@ -44,7 +58,7 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
         "license": "https://opensource.org/licenses/MIT",
         "downloadUrl": "https://github.com/SeaBathy/seabathy-desktop/releases/latest",
-        "publisher": { "@id": "#org" }
+        "publisher": { "@id": "https://seabathy.com/#org" }
       },
       {
         "@type": "SoftwareApplication",
@@ -55,7 +69,7 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
         "license": "https://opensource.org/licenses/MIT",
         "downloadUrl": "https://github.com/SeaBathy/BathyPicker/releases/latest",
-        "publisher": { "@id": "#org" }
+        "publisher": { "@id": "https://seabathy.com/#org" }
       },
       {
         "@type": "SoftwareApplication",
@@ -66,7 +80,7 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
         "license": "https://opensource.org/licenses/MIT",
         "downloadUrl": "https://github.com/SeaBathy/AT5-Chart-Maker/releases/latest",
-        "publisher": { "@id": "#org" }
+        "publisher": { "@id": "https://seabathy.com/#org" }
       }
     ]
   }
