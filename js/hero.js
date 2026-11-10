@@ -103,7 +103,7 @@ async function loadScene(gl, scene) {
 }
 
 async function start() {
-  const gl = canvas && canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true });
+  const gl = canvas && canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' });
   if (!gl) throw new Error('WebGL2 not available');
 
   const program = link(gl, VERTEX, FRAGMENT);
@@ -124,7 +124,8 @@ async function start() {
 
   // Grid mesh, shared by both scenes: lighter on phones; the pixel shader lights it from
   // the full-resolution heights.
-  const grid = innerWidth < 760 ? 320 : 720;
+  // The shading reads the full-resolution heights per pixel, so the mesh can be lighter than the data.
+  const grid = innerWidth < 760 ? 256 : 480;
   const uvs = new Float32Array((grid + 1) * (grid + 1) * 2);
   for (let y = 0, k = 0; y <= grid; y++) for (let x = 0; x <= grid; x++) { uvs[k++] = x / grid; uvs[k++] = y / grid; }
   const indices = new Uint32Array(grid * grid * 6);
@@ -192,17 +193,37 @@ async function start() {
   const show = (el, key, text) => { if (el && shown[key] !== text) { el.textContent = text; shown[key] = text; } };
   const t0 = performance.now();
 
+  // Automatic quality: if frames come slower than about 40 a second, draw at a lower
+  // resolution (down to about half) until they keep up. It never steps back up, so it can't flicker.
+  let quality = 1;
+  let lastNow = 0;
+  let avgFrameMs = 16;
+  let settle = 90;          // frames to wait before (and after) each judgement
+  function adapt(now) {
+    const dt = now - lastNow;
+    lastNow = now;
+    if (dt <= 0 || dt > 250) return;            // first frame, or back from a hidden tab
+    avgFrameMs = avgFrameMs * 0.92 + dt * 0.08;
+    if (settle > 0) { settle--; return; }
+    if (avgFrameMs > 24 && quality > 0.5) {
+      quality = Math.max(0.5, quality * 0.8);
+      settle = 60;
+      avgFrameMs = 16;
+    }
+  }
+
   function loop(now) {
     requestAnimationFrame(loop);
-    if (!visible) return;
+    if (!visible) { lastNow = 0; return; }
     if (reduceMotion && !needsStill) return;
     needsStill = false;
+    adapt(now);
     frame(now);
   }
 
   function frame(now) {
     const t = Number.isFinite(frozenAt) ? frozenAt : reduceMotion ? 6 : (now - t0) / 1000;
-    resize(gl, canvas);
+    resize(gl, canvas, quality);
 
     // Which scene, and its fade in and out.
     lastT = t;
@@ -400,8 +421,8 @@ function hex(s) { return [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16)); 
 
 function smoothstep(e0, e1, x) { const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); }
 
-function resize(gl, c) {
-  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.5 : 2);
+function resize(gl, c, quality = 1) {
+  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.25 : 1.5) * quality;
   const w = Math.round(c.clientWidth * dpr);
   const h = Math.round(c.clientHeight * dpr);
   if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }

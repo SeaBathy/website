@@ -135,8 +135,18 @@ p { margin: 0; }
   bottom: 0;
   right: 0;
   left: calc(max(16px, (100vw - var(--max)) / 2) + 470px);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 12%);
+}
+/* Soft left edge: a plain gradient on top (a mask on an animated canvas costs every frame). */
+.hero-stage::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 14%;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--bg), rgba(6, 11, 20, 0));
 }
 #hero-canvas {
   width: 100%;
@@ -171,10 +181,8 @@ p { margin: 0; }
   gap: 6px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(10, 18, 32, 0.66);
+  background: rgba(10, 18, 32, 0.86);
   border: 1px solid rgba(45, 212, 191, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   font-size: 13px;
   color: var(--muted);
   pointer-events: none;
@@ -195,10 +203,8 @@ p { margin: 0; }
   padding: 4px;
   gap: 4px;
   border-radius: 12px;
-  background: rgba(10, 18, 32, 0.66);
+  background: rgba(10, 18, 32, 0.86);
   border: 1px solid rgba(45, 212, 191, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 .hero-scenes button {
   font: 600 13px/1 var(--font);
@@ -388,7 +394,8 @@ p { margin: 0; }
   .nav-links { display: none; }
   .hero { flex-direction: column; align-items: stretch; padding-top: 48px; padding-bottom: 0; min-height: 0; }
   .hero-copy { max-width: none; }
-  .hero-stage { position: relative; left: auto; right: auto; width: auto; height: min(72vw, 560px); margin: 10px -16px 0; -webkit-mask-image: none; mask-image: none; }
+  .hero-stage { position: relative; left: auto; right: auto; width: auto; height: min(72vw, 560px); margin: 10px -16px 0; }
+  .hero-stage::before { display: none; }
   .hero-readout-place { right: 16px; bottom: 22px; }
   .hero-readout-live { top: 8px; right: 16px; }
   .hero-scenes { top: 74px; right: 16px; }
