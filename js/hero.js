@@ -78,12 +78,23 @@ async function loadScene(gl, scene) {
     lut[i] = Math.min(1, Math.max(0, 0.72 * byArea + 0.28 * byLog));
   }
 
+  // Heights at full 32-bit precision (16-bit floats step about half a metre, which shows
+  // as grain at high exaggeration). Read with texelFetch and blended in the shader, since
+  // 32-bit float textures can't be filtered on every device.
   const heightTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, heightTex);
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, scene.size, scene.size, 0, gl.RED, gl.FLOAT, heights);
-  setSampling(gl, gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, scene.size, scene.size, 0, gl.RED, gl.FLOAT, heights);
+  setSampling(gl, gl.NEAREST);
+
+  // Slopes for the lighting, worked out here at full precision, with a mipmap chain: far
+  // away or at a glancing angle the shader reads averaged slopes, so the relief stays
+  // sharp up close without sparkling in the distance.
+  const slopeTex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, slopeTex);
+  uploadSlopes(gl, heights, scene.size);
 
   const lutTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
@@ -94,6 +105,7 @@ async function loadScene(gl, scene) {
   return {
     ...scene,
     heightTex,
+    slopeTex,
     lutTex,
     depthRange,
     typicalH,
@@ -109,7 +121,7 @@ async function start() {
   const program = link(gl, VERTEX, FRAGMENT);
   gl.useProgram(program);
   const u = uniforms(gl, program, ['uMvp', 'uH', 'uPal', 'uExag', 'uTexel', 'uLight', 'uEye', 'uPalA', 'uPalB', 'uMix',
-    'uDepthRange', 'uContour', 'uContourStep', 'uRows', 'uLut', 'uFade']);
+    'uDepthRange', 'uContour', 'uContourStep', 'uRows', 'uLut', 'uFade', 'uSlope']);
 
   // The first scene before anything shows; the close-up loads behind it.
   const scenes = [await loadScene(gl, SCENES[0])];
@@ -150,6 +162,7 @@ async function start() {
   gl.uniform1i(u.uH, 0);
   gl.uniform1i(u.uPal, 1);
   gl.uniform1i(u.uLut, 2);
+  gl.uniform1i(u.uSlope, 3);
   gl.uniform1f(u.uRows, PALETTES.length);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
@@ -194,21 +207,26 @@ async function start() {
   const t0 = performance.now();
 
   // Automatic quality: if frames come slower than about 40 a second, draw at a lower
-  // resolution (down to about half) until they keep up. It never steps back up, so it can't flicker.
+  // resolution (down to 60 %) until they keep up, and step back up after a few seconds of
+  // quick frames. Slow frames while the close-up is still loading don't count.
   let quality = 1;
   let lastNow = 0;
   let avgFrameMs = 16;
-  let settle = 90;          // frames to wait before (and after) each judgement
+  let settle = 120;         // frames to wait before (and after) each judgement
   function adapt(now) {
     const dt = now - lastNow;
     lastNow = now;
     if (dt <= 0 || dt > 250) return;            // first frame, or back from a hidden tab
-    avgFrameMs = avgFrameMs * 0.92 + dt * 0.08;
+    if (scenes.length < SCENES.length) return;  // the close-up is still loading
+    avgFrameMs = avgFrameMs * 0.94 + dt * 0.06;
     if (settle > 0) { settle--; return; }
-    if (avgFrameMs > 24 && quality > 0.5) {
-      quality = Math.max(0.5, quality * 0.8);
-      settle = 60;
+    if (avgFrameMs > 24 && quality > 0.6) {
+      quality = Math.max(0.6, quality * 0.85);
+      settle = 90;
       avgFrameMs = 16;
+    } else if (avgFrameMs < 18.5 && quality < 1) {
+      quality = Math.min(1, quality / 0.85);
+      settle = 300;
     }
   }
 
@@ -280,6 +298,8 @@ async function start() {
     gl.bindTexture(gl.TEXTURE_2D, scene.heightTex);
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, scene.lutTex);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, scene.slopeTex);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.uniformMatrix4fv(u.uMvp, false, mvp);
@@ -313,15 +333,33 @@ async function start() {
 
 // ------------------------------------------------------------------ shaders
 
+// Smoothly blended height from the 32-bit texture (which is read unfiltered).
+const HEIGHT_AT = `
+float heightAt(sampler2D tex, vec2 uv) {
+  vec2 size = vec2(textureSize(tex, 0));
+  vec2 p = clamp(uv * size - 0.5, vec2(0.0), size - 1.0);
+  ivec2 i = ivec2(floor(p));
+  ivec2 j = min(i + 1, ivec2(size) - 1);
+  vec2 f = p - vec2(i);
+  float a = texelFetch(tex, i, 0).r;
+  float b = texelFetch(tex, ivec2(j.x, i.y), 0).r;
+  float c = texelFetch(tex, ivec2(i.x, j.y), 0).r;
+  float d = texelFetch(tex, j, 0).r;
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}`;
+
 const VERTEX = `#version 300 es
+precision highp float;
+precision highp sampler2D;
 in vec2 aUv;
 uniform sampler2D uH;
 uniform mat4 uMvp;
 uniform float uExag;
 out vec2 vUv;
 out vec3 vPos;
+${HEIGHT_AT}
 void main() {
-  float h = texture(uH, aUv).r;
+  float h = heightAt(uH, aUv);
   vec3 p = vec3(aUv.x - 0.5, h * uExag, aUv.y - 0.5);
   vUv = aUv;
   vPos = p;
@@ -330,9 +368,11 @@ void main() {
 
 const FRAGMENT = `#version 300 es
 precision highp float;
+precision highp sampler2D;
 in vec2 vUv;
 in vec3 vPos;
 uniform sampler2D uH;
+uniform sampler2D uSlope;
 uniform sampler2D uPal;
 uniform sampler2D uLut;
 uniform float uExag, uPalA, uPalB, uMix, uDepthRange, uContour, uContourStep, uRows, uFade;
@@ -342,10 +382,13 @@ out vec4 outColour;
 
 vec3 palette(float row, float t) { return texture(uPal, vec2(t, (row + 0.5) / uRows)).rgb; }
 
+${HEIGHT_AT}
+
 void main() {
-  float h = texture(uH, vUv).r;
-  float hx = texture(uH, vUv + vec2(uTexel.x, 0.0)).r - texture(uH, vUv - vec2(uTexel.x, 0.0)).r;
-  float hy = texture(uH, vUv + vec2(0.0, uTexel.y)).r - texture(uH, vUv - vec2(0.0, uTexel.y)).r;
+  float h = heightAt(uH, vUv);
+  vec2 slope = texture(uSlope, vUv).rg;
+  float hx = slope.x;
+  float hy = slope.y;
   vec3 n = normalize(vec3(-hx * uExag / (2.0 * uTexel.x), 1.0, -hy * uExag / (2.0 * uTexel.y)));
 
   // Depth in metres; where it falls on the palette comes from the colour-spread table.
@@ -402,6 +445,56 @@ function setSampling(gl, filter) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 }
 
+/**
+ * Uploads the slope texture: per cell, the height difference across its two neighbours in
+ * x and y (what the shader turns into a surface normal), with every mipmap level averaged
+ * down from the one above. Mipmaps of 16-bit float textures can't be generated on every
+ * device, so they're made here. Anisotropic filtering keeps glancing views crisp.
+ */
+function uploadSlopes(gl, heights, size) {
+  // Horn's method (as in GDAL's hillshade): the slope across all eight neighbours, weighted
+  // 1-2-1, which evens out survey speckle without softening real edges.
+  const at = (x, y) => heights[Math.min(size - 1, Math.max(0, y)) * size + Math.min(size - 1, Math.max(0, x))];
+  let level = new Float32Array(size * size * 2);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 2;
+      level[i] = ((at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1))
+        - (at(x - 1, y - 1) + 2 * at(x - 1, y) + at(x - 1, y + 1))) / 4;
+      level[i + 1] = ((at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1))
+        - (at(x - 1, y - 1) + 2 * at(x, y - 1) + at(x + 1, y - 1))) / 4;
+    }
+  }
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  let n = size;
+  for (let lod = 0; ; lod++) {
+    gl.texImage2D(gl.TEXTURE_2D, lod, gl.RG16F, n, n, 0, gl.RG, gl.FLOAT, level);
+    if (n === 1) break;
+    const m = n >> 1;
+    const next = new Float32Array(m * m * 2);
+    for (let y = 0; y < m; y++) {
+      for (let x = 0; x < m; x++) {
+        for (let c = 0; c < 2; c++) {
+          const a = ((2 * y) * n + 2 * x) * 2 + c;
+          const b = ((2 * y + 1) * n + 2 * x) * 2 + c;
+          next[(y * m + x) * 2 + c] = (level[a] + level[a + 2] + level[b] + level[b + 2]) / 4;
+        }
+      }
+    }
+    level = next;
+    n = m;
+  }
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+  if (aniso) {
+    const max = gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+    gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, max));
+  }
+}
+
 function paletteBytes() {
   const out = new Uint8Array(256 * PALETTES.length * 4);
   PALETTES.forEach((p, row) => {
@@ -422,7 +515,7 @@ function hex(s) { return [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16)); 
 function smoothstep(e0, e1, x) { const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); }
 
 function resize(gl, c, quality = 1) {
-  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.25 : 1.5) * quality;
+  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.75 : 2) * quality;
   const w = Math.round(c.clientWidth * dpr);
   const h = Math.round(c.clientHeight * dpr);
   if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
