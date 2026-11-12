@@ -89,8 +89,8 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="css/site.css?v=6">
-  <script type="module" src="js/hero.js?v=7"></script>
+  <link rel="stylesheet" href="css/site.css?v=7">
+  <script type="module" src="js/hero.js?v=8"></script>
   <script defer src="js/site.js?v=4"></script>
 </head>
 <body>
@@ -103,7 +103,7 @@
   <nav class="nav-links" aria-label="Main">
     <a href="#apps">Apps</a>
     <a href="#features">Features</a>
-    <a href="#how">How it works</a>
+    <a href="#guide">How to</a>
     <a href="#data">Data</a>
   </nav>
   <a class="btn btn-small btn-primary" href="#apps">Get the apps</a>
@@ -155,7 +155,7 @@
   <section class="section" id="apps">
     <div class="section-head">
       <p class="eyebrow">Four apps · one toolkit</p>
-      <h2>Everything from survey<br>to sounder.</h2>
+      <h2>Everything from survey <br>to sounder.</h2>
     </div>
 
     <div class="apps">
@@ -191,7 +191,7 @@
 
       <article class="app">
         <div class="app-media">
-          <div class="window"><img src="img/bathypicker-result.webp" alt="A depth GeoTIFF made with BathyPicker, open in SeaBathy Desktop" width="1440" height="900" loading="lazy"></div>
+          <div class="window"><img src="img/bathypicker-app.webp" alt="BathyPicker: a box drawn over the Whitsundays on a satellite map, with Check size showing 10 m detail and the file size" width="1440" height="900" loading="lazy"></div>
         </div>
         <div class="app-body">
           <p class="tag">Windows · macOS · Linux · Android</p>
@@ -206,12 +206,12 @@
 
       <article class="app">
         <div class="app-media">
-          <div class="window"><img src="img/at5-app.webp" alt="AT5 Chart Maker window" width="1096" height="511" loading="lazy"></div>
+          <div class="window"><img src="img/at5-chart.webp" alt="Reefs on the central Great Barrier Reef as AT5 Chart Maker draws them: a coloured, shaded depth picture on the left, the depth chart with contour lines on the right" width="1440" height="900" loading="lazy"></div>
         </div>
         <div class="app-body">
           <p class="tag">Windows · for Simrad, Lowrance &amp; B&amp;G</p>
           <h3>AT5 Chart Maker</h3>
-          <p>Put your own depth charts and imagery on your chartplotter's SD card.</p>
+          <p>Put any depth GeoTIFF on your sounder. Get a coloured, shaded depth picture and a contour chart, ready to copy to the plotter's SD card.</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/AT5-Chart-Maker/releases/latest">Download</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/AT5-Chart-Maker">Source</a>
@@ -225,7 +225,7 @@
   <section class="section" id="features">
     <div class="section-head">
       <p class="eyebrow">Features</p>
-      <h2>Built for reading<br>the bottom.</h2>
+      <h2>Built for reading <br>the bottom.</h2>
     </div>
 
     <div class="feature">
@@ -233,7 +233,7 @@
       <div class="feature-copy">
         <p class="tag">3D seabed</p>
         <h3>Every ledge, wall and bommie.</h3>
-        <p>Fly over any depth file in 3D, stretch the relief up to 100×, add contours and drape maps over it.</p>
+        <p>Fly over any depth file in 3D. Stretch the relief up to 100× so walls and channels stand out, add contours, and drape satellite or your offline maps over the seabed.</p>
       </div>
     </div>
 
@@ -242,7 +242,7 @@
       <div class="feature-copy">
         <p class="tag">Depth colours</p>
         <h3>Colour it your way.</h3>
-        <p>Palettes, relief shading and a depth range you set, so the structure you care about stands out.</p>
+        <p>Seven palettes, relief shading and a depth range you set. Presets for reefs, inshore, coastal and offshore get you started in one tap.</p>
       </div>
     </div>
 
@@ -254,7 +254,7 @@
       <div class="feature-copy">
         <p class="tag">Tides · conditions · offline</p>
         <h3>No signal? No problem.</h3>
-        <p>Save maps, tides, wind, swell, currents and sea temperature before you leave the ramp.</p>
+        <p>Save satellite maps, tides, wind, swell, currents and sea temperature before you leave the ramp. Everything you saved works with no signal.</p>
       </div>
     </div>
 
@@ -263,50 +263,56 @@
       <div class="feature-copy">
         <p class="tag">Plan</p>
         <h3>Plan the run.</h3>
-        <p>Waypoints and routes with the survey depth checked along every leg. GPX in and out.</p>
+        <p>Waypoints and routes with the least survey depth on every leg, checked against your draft. GPX in and out, so marks move between your phone, PC and plotter.</p>
       </div>
     </div>
 
     <div class="feature">
-      <div class="feature-media"><div class="window window-square"><img src="img/at5-imagery.webp" alt="Bathymetry imagery made into a chartplotter chart" width="896" height="896" loading="lazy"></div></div>
+      <div class="feature-media">
+        <figure class="window window-square split">
+          <img src="img/at5-chart-square.webp" alt="One survey made into both plotter layers by AT5 Chart Maker: the coloured depth picture and the contour chart" width="1000" height="1000" loading="lazy">
+          <figcaption><span>Depth picture</span><span>Contour chart</span></figcaption>
+        </figure>
+      </div>
       <div class="feature-copy">
         <p class="tag">Chartplotter</p>
         <h3>From survey to sounder.</h3>
-        <p>Turn depth contours or coloured bathymetry into charts for Simrad, Lowrance and B&amp;G units.</p>
+        <p>AT5 Chart Maker turns a depth survey into the two layers your Simrad, Lowrance or B&amp;G plotter shows: a shaded depth picture for the photo overlay, and contour lines as a chart.</p>
       </div>
     </div>
   </section>
 
-  <!-- How it works -->
-  <section class="section" id="how">
+  <!-- How to -->
+  <section class="section" id="guide">
     <div class="section-head">
-      <p class="eyebrow">How it works</p>
-      <h2>Load. Explore. Go.</h2>
+      <p class="eyebrow">How to</p>
+      <h2>From a box on the map <br>to your boat.</h2>
     </div>
     <ol class="steps">
       <li>
         <span class="step-num">1</span>
-        <h3>Bring your data</h3>
-        <p>Any GeoTIFF or MBTiles you have, or draw a box in BathyPicker for free survey data.</p>
+        <h3>Get a depth file</h3>
+        <p>Open <b>BathyPicker</b>, drag the box over the water you fish, press <b>Check size</b>, then <b>Build GeoTIFF</b>. A bay takes seconds. Any GeoTIFF or MBTiles you already have works too.</p>
       </li>
       <li>
         <span class="step-num">2</span>
-        <h3>Explore it</h3>
-        <p>Open it in SeaBathy on your phone or PC. Fly over it in 3D and drop marks.</p>
+        <h3>Look at it</h3>
+        <p><b>Phone:</b> SeaBathy → Settings → <b>Load GeoTIFF</b>, and pick it from Download/BathyPicker. <b>PC:</b> drag the file onto SeaBathy Desktop. Then tap <b>Colours</b> or <b>3D view</b>.</p>
       </li>
       <li>
         <span class="step-num">3</span>
         <h3>Take it out</h3>
-        <p>Everything works offline on the phone, or goes onto your plotter with AT5 Chart Maker.</p>
+        <p><b>Phone:</b> it's saved, so it works with no signal. <b>Plotter:</b> open the same file in <b>AT5 Chart Maker</b>, press <b>Convert</b> and copy the folder to the SD card.</p>
       </li>
     </ol>
+    <p class="guide-more"><a class="btn btn-ghost" href="/guide">Read the full guide <span aria-hidden="true">→</span></a></p>
   </section>
 
   <!-- Data -->
   <section class="section section-data" id="data">
     <div class="section-head">
       <p class="eyebrow">Your data · open data</p>
-      <h2>Your files, plus the<br>best public data.</h2>
+      <h2>Your files, plus the <br>best public data.</h2>
     </div>
     <ul class="sources">
       <li><b>Your own files</b><span>Any GeoTIFF or MBTiles, at any resolution</span></li>
@@ -345,6 +351,7 @@
     <a href="https://github.com/SeaBathy/seabathy-desktop">SeaBathy Desktop</a>
     <a href="https://github.com/SeaBathy/BathyPicker">BathyPicker</a>
     <a href="https://github.com/SeaBathy/AT5-Chart-Maker">AT5 Chart Maker</a>
+    <a href="/guide">How-to guide</a>
   </div>
   <p class="footer-fine">© 2026 SeaBathy · MIT licence · <a href="/privacy">Privacy policy</a> · Not for navigation. Hero seabed: Flukes, E. (2026), Multi-resolution bathymetry composite surface for Australian waters, IMAS, <a href="https://doi.org/10.25959/Y9VF-V723">doi:10.25959/Y9VF-V723</a>, CC BY 4.0, resampled to about 59 m (wide view) and 10 m (reef close-up) per cell. Screenshots show map data © OpenStreetMap contributors (OpenFreeMap, OpenMapTiles) and Open-Meteo / Copernicus data, as credited in each. SeaBathy is not affiliated with IMAS, the University of Tasmania or any data provider. Simrad, Lowrance, B&amp;G and Navico are trademarks of their owners; SeaBathy is not affiliated with them.</p>
 </footer>

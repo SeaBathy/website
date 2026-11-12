@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How-to guide · SeaBathy</title>
+  <meta name="description" content="Get a free depth GeoTIFF of Australian waters with BathyPicker, then open it in SeaBathy on your phone or PC, or put it on a Simrad, Lowrance or B&G chartplotter with AT5 Chart Maker.">
+  <link rel="canonical" href="https://seabathy.com/guide">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SeaBathy how-to guide: from a box on the map to your boat">
+  <meta property="og:description" content="Free seabed maps on your phone, PC or chartplotter, step by step.">
+  <meta property="og:url" content="https://seabathy.com/guide">
+  <meta property="og:image" content="https://seabathy.com/img/og.jpg">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/img/icon-48.png" type="image/png" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/css/site.css?v=7">
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="/" aria-label="SeaBathy home">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0e7490"/><path d="M4 12c3-2.5 6-2.5 9 0s6 2.5 9 0 4.5-2 6-1" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round"/><path d="M4 26l6-8 4 4 5-7 5 5 4-3v9z" fill="#ccfbf1"/></svg>
+    <span>SeaBathy</span>
+  </a>
+  <a class="btn btn-small btn-ghost" href="/">Back to SeaBathy</a>
+</header>
+
+<main class="doc">
+  <p class="eyebrow">How-to guide</p>
+  <h1>From a box on the map to your boat.</h1>
+  <p class="lede">Four free apps that work together. Get a depth file for the water you fish, look at it on your phone or PC, and put it on your chartplotter.</p>
+
+  <div class="paths">
+    <div><b>Phone</b><span>BathyPicker → SeaBathy for Android</span></div>
+    <div><b>PC</b><span>BathyPicker → SeaBathy Desktop</span></div>
+    <div><b>Chartplotter</b><span>BathyPicker → AT5 Chart Maker → SD card</span></div>
+  </div>
+
+  <ul class="toc" aria-label="On this page">
+    <li><a href="#get">1. Get a depth file</a></li>
+    <li><a href="#phone">2. On your phone</a></li>
+    <li><a href="#pc">3. On your PC</a></li>
+    <li><a href="#plotter">4. On your chartplotter</a></li>
+    <li><a href="#help">If something's not right</a></li>
+  </ul>
+
+  <h2 id="get">1. Get a depth file</h2>
+  <p><b>BathyPicker</b> cuts a piece out of the IMAS seabed survey of all Australian waters (up to 10 m detail along the coast) and saves it as one GeoTIFF, the standard file for depth maps.</p>
+  <ol>
+    <li>Download BathyPicker: <code>BathyPicker.exe</code> for Windows, <code>BathyPicker.apk</code> for Android, or the Python file for macOS and Linux. <a href="https://github.com/SeaBathy/BathyPicker/releases/latest">Downloads</a>.</li>
+    <li>Drag the box over the water you want, by its round handle, and pull the corners. Or pick a place from <b>Jump to</b>.</li>
+    <li>Press <b>Check size</b>. It shows the detail and the file size before anything downloads. Big boxes step down in detail by themselves.</li>
+    <li>Press <b>Build GeoTIFF</b>. A bay takes seconds, a whole coastline a few minutes.</li>
+  </ol>
+  <p>On a computer the file goes in <code>bathy_exports</code> in your user folder. On a phone it goes in <code>Download/BathyPicker</code>, and <b>Open</b> sends it straight to SeaBathy.</p>
+  <p>Already have a survey? Any GeoTIFF of depths, or an MBTiles chart, works in every step below. Outside Australia, SeaBathy can also download free worldwide depths (GMRT) for the area on screen: Settings → <b>Get seabed depths for this area</b>.</p>
+
+  <h2 id="phone">2. On your phone</h2>
+  <p><a href="https://github.com/SeaBathy/seabathy-android/releases/latest">SeaBathy for Android</a>, Android 8 or newer. Download the APK on the phone and open it. Android asks once to allow installs from your browser.</p>
+  <h3>Open your depth file</h3>
+  <ol>
+    <li>Menu (☰) → <b>Settings</b> → <b>Load GeoTIFF</b> (or <b>Load MBTiles file</b>).</li>
+    <li>Pick the file. BathyPicker's are under <b>This device → Download → BathyPicker</b>. The map flies to it.</li>
+    <li>In the Layers drawer, tap <b>Colours</b> and choose a preset (reef and shallows, inshore, coastal, offshore), or set your own depth range.</li>
+    <li>Tap <b>3D view</b> to fly over it. Raise the height to 10× or more and the reef walls and channels stand out. Tap anywhere for the depth and slope.</li>
+  </ol>
+  <h3>Before you leave the ramp</h3>
+  <ul>
+    <li><b>Offline maps:</b> Settings → Offline maps → Download the area on screen. Satellite imagery for when there's no signal.</li>
+    <li><b>Tides:</b> tap the Tide chip, choose a place and save the weeks ahead.</li>
+    <li><b>Sea conditions:</b> Settings → Sea conditions. Wind, waves, swell, currents, sea temperature and its breaks, chlorophyll, and temperature at a depth you choose, for 200 km round your spot. Tap a line in the values box to show it on the map.</li>
+  </ul>
+  <h3>On the water</h3>
+  <ul>
+    <li><b>Routes:</b> tap the route button and tap the chart. <b>Legs</b> shows the least survey depth on each leg against your draft. Saved routes → <b>Go</b> navigates one, with off-course and shallow-water alarms.</li>
+    <li><b>Waypoints:</b> the waypoint button drops a mark at the crosshair. Add an icon, colour and notes.</li>
+    <li><b>Anchor alarm:</b> Settings → Anchor alarm → <b>Drop anchor at the boat</b>, and set the circle. It keeps watching with the screen off.</li>
+    <li><b>Tracks:</b> Settings → Tracks → <b>Start recording</b>. Share it later as GPX.</li>
+    <li><b>GPX:</b> Settings → <b>Import GPX</b> and <b>Export waypoints and route</b>, to swap marks with your plotter or PC.</li>
+  </ul>
+
+  <h2 id="pc">3. On your PC</h2>
+  <p><a href="https://github.com/SeaBathy/seabathy-desktop/releases/latest">SeaBathy Desktop</a> is the same app for Windows 10 and 11, as one portable exe with nothing to install. The first time, Windows may say it protected your PC: click <b>More info</b>, then <b>Run anyway</b>.</p>
+  <ol>
+    <li>Drag the GeoTIFF or MBTiles onto the window.</li>
+    <li><b>Colours</b> sets the palette and depth range; <b>3D view</b> opens it in 3D. Drag to turn, right-drag to pan, scroll to zoom. <code>F</code> fits it, <code>T</code> looks from the top.</li>
+    <li>Plan routes on the big screen, then <b>export GPX</b> and import it on the phone or plotter.</li>
+  </ol>
+  <p>Offline maps you save on the PC are MBTiles files in <code>Documents\SeaBathy\OfflineDownloads</code>. Copy them to the phone and load them there too.</p>
+
+  <h2 id="plotter">4. On your chartplotter</h2>
+  <p><a href="https://github.com/SeaBathy/AT5-Chart-Maker/releases/latest">AT5 Chart Maker</a> (Windows) makes charts for Simrad, Lowrance and B&amp;G units that read Insight charts. Unzip it and run <code>AT5 Chart Maker.exe</code>.</p>
+  <ol>
+    <li>Drag your depth GeoTIFF onto the window. It's recognised as a <b>depth survey</b>.</li>
+    <li>Pick the colours and the <b>depth range</b> they spread over. A small range such as 0–30 m shows reefs in fine detail. Tick <b>Contour lines</b> for depth lines, and leave the spacing empty for automatic.</li>
+    <li>Press <b>Convert</b>. You get one folder holding a shaded depth picture and a contour chart.</li>
+    <li>Copy the folder to an SD card (FAT32, 32 GB or smaller) and put it in the plotter.</li>
+    <li>On the plotter, choose <b>Lowrance / Insight</b> as the chart source. On Simrad, turn on <b>Chart options → Photo overlay → Full</b> to see the depth picture.</li>
+  </ol>
+  <p>AT5 Chart Maker also converts contour MBTiles and satellite pictures. Every setting has a <b>?</b> that explains it. The full manual is in <a href="https://github.com/SeaBathy/AT5-Chart-Maker/blob/main/docs/HOW-TO.md">HOW-TO.md</a>.</p>
+
+  <h2 id="help">If something's not right</h2>
+  <ul>
+    <li><b>The file is empty or patchy.</b> IMAS maps the seafloor inside Australian waters only, so land and some offshore gaps have no data. Check the coverage BathyPicker reports when it finishes.</li>
+    <li><b>The file is too big.</b> Use a smaller box, or set a coarser detail in BathyPicker. Phones handle files of a few hundred MB easily, and big ones on 64-bit phones.</li>
+    <li><b>Nothing shows on the plotter.</b> Check the chart source is Lowrance / Insight and Photo overlay is on. Some older units only read files at the top of the card, so copy the <code>.at5</code> files themselves, not the folder. Try a small chart first.</li>
+    <li><b>The chart shows but the colours don't.</b> On Simrad, Photo overlay must be <b>Full</b>: <b>Land only</b> hides the picture over water.</li>
+    <li><b>Still stuck?</b> Open an issue on the app's GitHub page and say what you tried.</li>
+  </ul>
+
+  <div class="notice"><b>Not for navigation.</b> These apps are for planning and interest. They are not official nautical charts. Always carry official charts and proper navigation equipment.</div>
+</main>
+
+<footer class="footer">
+  <p class="footer-fine">© 2026 SeaBathy · MIT licence · <a href="/privacy">Privacy policy</a> · Not for navigation. Depth data: Flukes, E. (2026), Multi-resolution bathymetry composite surface for Australian waters, IMAS, <a href="https://doi.org/10.25959/Y9VF-V723">doi:10.25959/Y9VF-V723</a>, CC BY 4.0. Simrad, Lowrance, B&amp;G and Navico are trademarks of their owners; SeaBathy is not affiliated with them.</p>
+</footer>
+</body>
+</html>

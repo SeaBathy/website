@@ -9,8 +9,8 @@
 // each row delta-encoded (every value after the first is the change from the one before),
 // then gzipped.
 const SCENES = [
-  { url: 'data/wide-1024.i16d.gz', size: 1024, unitsPerMetre: 10, areaKm: 60.4, maxExag: 80, coords: '17°51.3′S 146°38.1′E', place: 'Central Great Barrier Reef, QLD' },
-  { url: 'data/reef-1024.i16d.gz', size: 1024, unitsPerMetre: 100, areaKm: 9.74, maxExag: 40, coords: '18°01.5′S 146°35.5′E', place: 'A reef edge at 10 m detail, central GBR' }
+  { url: 'data/wide-1024.i16d.gz', size: 1024, unitsPerMetre: 10, areaKm: 60.4, maxExag: 80, smooth: 1.0, coords: '17°51.3′S 146°38.1′E', place: 'Central Great Barrier Reef, QLD' },
+  { url: 'data/reef-1024.i16d.gz', size: 1024, unitsPerMetre: 100, areaKm: 9.74, maxExag: 40, smooth: 2.2, coords: '18°01.5′S 146°35.5′E', place: 'A reef edge at 10 m detail, central GBR' }
 ];
 const SCENE_SECONDS = 36;     // each scene's turn, with a short fade at each end
 const SCENE_FADE = 1.2;
@@ -60,6 +60,9 @@ async function loadScene(gl, scene) {
   const depthRange = (max - min) / scene.unitsPerMetre;   // metres
   const heights = new Float32Array(raw.length);
   for (let i = 0; i < raw.length; i++) heights[i] = (raw[i] - min) / (max - min); // 0 deepest .. 1 shallowest
+  // A light blur (about a cell) takes out survey speckle, which otherwise shows as grain in
+  // the lighting and as crinkly contour lines, without softening the reefs themselves.
+  blur(heights, scene.size, scene.smooth);
 
   // Colour spread: three parts "by how much seabed sits at each depth" (histogram equalised),
   // one part logarithmic, so the reef tops, the lagoon floor and the drop-off each get their own colours.
@@ -88,13 +91,13 @@ async function loadScene(gl, scene) {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, scene.size, scene.size, 0, gl.RED, gl.FLOAT, heights);
   setSampling(gl, gl.NEAREST);
 
-  // Slopes for the lighting, worked out here at full precision, with a mipmap chain: far
-  // away or at a glancing angle the shader reads averaged slopes, so the relief stays
-  // sharp up close without sparkling in the distance.
+  // Height and slopes together for the pixel shader, filtered, with a mipmap chain: one read
+  // per pixel, and far away or at a glancing angle it gets averaged values, so the relief
+  // stays sharp up close without sparkling in the distance.
   const slopeTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE3);
   gl.bindTexture(gl.TEXTURE_2D, slopeTex);
-  uploadSlopes(gl, heights, scene.size);
+  uploadSurface(gl, heights, scene.size);
 
   const lutTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
@@ -207,7 +210,7 @@ async function start() {
   const t0 = performance.now();
 
   // Automatic quality: if frames come slower than about 40 a second, draw at a lower
-  // resolution (down to 60 %) until they keep up, and step back up after a few seconds of
+  // resolution (down to 75 %) until they keep up, and step back up after a few seconds of
   // quick frames. Slow frames while the close-up is still loading don't count.
   let quality = 1;
   let lastNow = 0;
@@ -220,8 +223,8 @@ async function start() {
     if (scenes.length < SCENES.length) return;  // the close-up is still loading
     avgFrameMs = avgFrameMs * 0.94 + dt * 0.06;
     if (settle > 0) { settle--; return; }
-    if (avgFrameMs > 24 && quality > 0.6) {
-      quality = Math.max(0.6, quality * 0.85);
+    if (avgFrameMs > 24 && quality > 0.75) {
+      quality = Math.max(0.75, quality * 0.9);
       settle = 90;
       avgFrameMs = 16;
     } else if (avgFrameMs < 18.5 && quality < 1) {
@@ -382,13 +385,11 @@ out vec4 outColour;
 
 vec3 palette(float row, float t) { return texture(uPal, vec2(t, (row + 0.5) / uRows)).rgb; }
 
-${HEIGHT_AT}
-
 void main() {
-  float h = heightAt(uH, vUv);
-  vec2 slope = texture(uSlope, vUv).rg;
-  float hx = slope.x;
-  float hy = slope.y;
+  vec3 surface = texture(uSlope, vUv).rgb;
+  float h = surface.r + 0.5;
+  float hx = surface.g;
+  float hy = surface.b;
   vec3 n = normalize(vec3(-hx * uExag / (2.0 * uTexel.x), 1.0, -hy * uExag / (2.0 * uTexel.y)));
 
   // Depth in metres; where it falls on the palette comes from the colour-spread table.
@@ -415,6 +416,8 @@ void main() {
   vec2 e = min(vUv, 1.0 - vUv);
   float edge = smoothstep(0.0, 0.07, min(e.x, e.y));
   float alpha = edge * uFade;
+  // A touch of noise, too faint to see, so smooth gradients don't band.
+  colour += (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
   outColour = vec4(colour * alpha, alpha);
 }`;
 
@@ -446,38 +449,41 @@ function setSampling(gl, filter) {
 }
 
 /**
- * Uploads the slope texture: per cell, the height difference across its two neighbours in
- * x and y (what the shader turns into a surface normal), with every mipmap level averaged
- * down from the one above. Mipmaps of 16-bit float textures can't be generated on every
+ * Uploads the pixel shader's surface texture: per cell, the height and the height difference
+ * across its neighbours in x and y (what the shader turns into a surface normal), with every
+ * mipmap level averaged down from the one above. Mipmaps of 16-bit float textures can't be generated on every
  * device, so they're made here. Anisotropic filtering keeps glancing views crisp.
  */
-function uploadSlopes(gl, heights, size) {
+function uploadSurface(gl, heights, size) {
   // Horn's method (as in GDAL's hillshade): the slope across all eight neighbours, weighted
   // 1-2-1, which evens out survey speckle without softening real edges.
   const at = (x, y) => heights[Math.min(size - 1, Math.max(0, y)) * size + Math.min(size - 1, Math.max(0, x))];
-  let level = new Float32Array(size * size * 2);
+  // Four channels (three-channel 16-bit float textures can't be filtered everywhere): the
+  // height centred on 0 for the best half-float precision, the two slopes, and a spare.
+  let level = new Float32Array(size * size * 4);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const i = (y * size + x) * 2;
-      level[i] = ((at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1))
+      const i = (y * size + x) * 4;
+      level[i] = at(x, y) - 0.5;
+      level[i + 1] = ((at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1))
         - (at(x - 1, y - 1) + 2 * at(x - 1, y) + at(x - 1, y + 1))) / 4;
-      level[i + 1] = ((at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1))
+      level[i + 2] = ((at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1))
         - (at(x - 1, y - 1) + 2 * at(x, y - 1) + at(x + 1, y - 1))) / 4;
     }
   }
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
   let n = size;
   for (let lod = 0; ; lod++) {
-    gl.texImage2D(gl.TEXTURE_2D, lod, gl.RG16F, n, n, 0, gl.RG, gl.FLOAT, level);
+    gl.texImage2D(gl.TEXTURE_2D, lod, gl.RGBA16F, n, n, 0, gl.RGBA, gl.FLOAT, level);
     if (n === 1) break;
     const m = n >> 1;
-    const next = new Float32Array(m * m * 2);
+    const next = new Float32Array(m * m * 4);
     for (let y = 0; y < m; y++) {
       for (let x = 0; x < m; x++) {
-        for (let c = 0; c < 2; c++) {
-          const a = ((2 * y) * n + 2 * x) * 2 + c;
-          const b = ((2 * y + 1) * n + 2 * x) * 2 + c;
-          next[(y * m + x) * 2 + c] = (level[a] + level[a + 2] + level[b] + level[b + 2]) / 4;
+        for (let c = 0; c < 4; c++) {
+          const a = ((2 * y) * n + 2 * x) * 4 + c;
+          const b = ((2 * y + 1) * n + 2 * x) * 4 + c;
+          next[(y * m + x) * 4 + c] = (level[a] + level[a + 4] + level[b] + level[b + 4]) / 4;
         }
       }
     }
@@ -492,6 +498,32 @@ function uploadSlopes(gl, heights, size) {
   if (aniso) {
     const max = gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
     gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, max));
+  }
+}
+
+/** Gaussian blur in place (two passes, edges clamped); sigma in cells. */
+function blur(values, size, sigma) {
+  if (!sigma) return;
+  const r = Math.ceil(sigma * 2.5);
+  const k = [];
+  let sum = 0;
+  for (let i = -r; i <= r; i++) { const w = Math.exp(-(i * i) / (2 * sigma * sigma)); k.push(w); sum += w; }
+  for (let i = 0; i < k.length; i++) k[i] /= sum;
+  const tmp = new Float32Array(values.length);
+  for (let y = 0; y < size; y++) {
+    const row = y * size;
+    for (let x = 0; x < size; x++) {
+      let v = 0;
+      for (let i = -r; i <= r; i++) v += k[i + r] * values[row + Math.min(size - 1, Math.max(0, x + i))];
+      tmp[row + x] = v;
+    }
+  }
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      let v = 0;
+      for (let i = -r; i <= r; i++) v += k[i + r] * tmp[Math.min(size - 1, Math.max(0, y + i)) * size + x];
+      values[y * size + x] = v;
+    }
   }
 }
 
@@ -515,7 +547,7 @@ function hex(s) { return [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16)); 
 function smoothstep(e0, e1, x) { const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); }
 
 function resize(gl, c, quality = 1) {
-  const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.75 : 2) * quality;
+  const dpr = Math.min(devicePixelRatio || 1, 1.5) * quality;
   const w = Math.round(c.clientWidth * dpr);
   const h = Math.round(c.clientHeight * dpr);
   if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
