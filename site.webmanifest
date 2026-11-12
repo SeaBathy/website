@@ -1,7 +1,7 @@
 {
   "name": "SeaBathy",
   "short_name": "SeaBathy",
-  "description": "Free 3D seabed maps for Australian waters",
+  "description": "Free 3D seabed maps and charts for your plotter",
   "start_url": "/",
   "display": "browser",
   "background_color": "#060b14",
