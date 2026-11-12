@@ -1,0 +1,14 @@
+{
+  "name": "SeaBathy",
+  "short_name": "SeaBathy",
+  "description": "Free 3D seabed maps for Australian waters",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#060b14",
+  "theme_color": "#060b14",
+  "icons": [
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
