@@ -95,8 +95,8 @@
   <ol>
     <li>Drag your depth GeoTIFF onto the window. It's recognised as a <b>depth survey</b>.</li>
     <li>Pick the colours and the <b>depth range</b> they spread over. A small range such as 0–30 m shows reefs in fine detail. <b>Also make contour lines every</b> is ticked already: leave the spacing empty for automatic, or type one such as 5.</li>
-    <li>Press <b>Convert</b>. You get one folder holding a shaded depth picture and a contour chart.</li>
-    <li>Copy the folder to an SD card (FAT32, 32 GB or smaller) and put it in the plotter.</li>
+    <li>Press <b>Convert</b>. You get a shaded depth picture and a contour chart, as <code>.at5</code> files named after the chart.</li>
+    <li>Copy the <code>.at5</code> files to the top of an SD card (FAT32, 32 GB or smaller), not inside a folder, and put it in the plotter. Keep <b>Also put the name in the file names</b> ticked, so several charts can sit together.</li>
     <li>On the plotter, choose <b>Lowrance / Insight</b> as the chart source. On Simrad, turn on <b>Chart options → Photo overlay → Full</b> to see the depth picture.</li>
   </ol>
   <p>AT5 Chart Maker also converts contour MBTiles and satellite pictures. Every setting has a <b>?</b> that explains it. The full manual is in <a href="https://github.com/SeaBathy/AT5-Chart-Maker/blob/main/docs/HOW-TO.md">HOW-TO.md</a>.</p>
@@ -105,7 +105,7 @@
   <ul>
     <li><b>The file is empty or patchy.</b> IMAS maps the seafloor inside Australian waters only, so land and some offshore gaps have no data. Check the coverage BathyPicker reports when it finishes.</li>
     <li><b>The file is too big.</b> Use a smaller box, or set a coarser detail in BathyPicker. Phones handle files of a few hundred MB easily, and big ones on 64-bit phones.</li>
-    <li><b>Nothing shows on the plotter.</b> Check the chart source is Lowrance / Insight and Photo overlay is on. Some older units only read files at the top of the card, so copy the <code>.at5</code> files themselves, not the folder. Try a small chart first.</li>
+    <li><b>Nothing shows on the plotter.</b> Check the chart source is Lowrance / Insight, Photo overlay is on, and the <code>.at5</code> files are at the top of the card, not in a folder: on the Simrad AT5 Chart Maker was tested on, charts in folders weren't found. Try a small chart first.</li>
     <li><b>The chart shows but the colours don't.</b> On Simrad, Photo overlay must be <b>Full</b>: <b>Land only</b> hides the picture over water.</li>
     <li><b>Still stuck?</b> Open an issue on the app's GitHub page and say what you tried.</li>
   </ul>
