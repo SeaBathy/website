@@ -62,7 +62,7 @@ async function loadScene(gl, scene) {
   for (let i = 0; i < raw.length; i++) heights[i] = (raw[i] - min) / (max - min); // 0 deepest .. 1 shallowest
   // A light blur (about a cell) takes out survey speckle, which otherwise shows as grain in
   // the lighting and as crinkly contour lines, without softening the reefs themselves.
-  blur(heights, scene.size, scene.smooth);
+  await blur(heights, scene.size, scene.smooth);
 
   // Colour spread: three parts "by how much seabed sits at each depth" (histogram equalised),
   // one part logarithmic, so the reef tops, the lagoon floor and the drop-off each get their own colours.
@@ -97,7 +97,7 @@ async function loadScene(gl, scene) {
   const slopeTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE3);
   gl.bindTexture(gl.TEXTURE_2D, slopeTex);
-  uploadSurface(gl, heights, scene.size);
+  await uploadSurface(gl, heights, scene.size, slopeTex);
 
   const lutTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
@@ -140,7 +140,7 @@ async function start() {
   // Grid mesh, shared by both scenes: lighter on phones; the pixel shader lights it from
   // the full-resolution heights.
   // The shading reads the full-resolution heights per pixel, so the mesh can be lighter than the data.
-  const grid = innerWidth < 760 ? 256 : 480;
+  const grid = innerWidth < 760 ? 256 : 384;
   const uvs = new Float32Array((grid + 1) * (grid + 1) * 2);
   for (let y = 0, k = 0; y <= grid; y++) for (let x = 0; x <= grid; x++) { uvs[k++] = x / grid; uvs[k++] = y / grid; }
   const indices = new Uint32Array(grid * grid * 6);
@@ -209,13 +209,17 @@ async function start() {
   const show = (el, key, text) => { if (el && shown[key] !== text) { el.textContent = text; shown[key] = text; } };
   const t0 = performance.now();
 
-  // Automatic quality: if frames come slower than about 40 a second, draw at a lower
-  // resolution (down to 75 %) until they keep up, and step back up after a few seconds of
-  // quick frames. Slow frames while the close-up is still loading don't count.
+  // Automatic quality: if frames come slower than about 52 a second, draw at a lower
+  // resolution, a step at a time (85 %, 72 %, 60 %), until they keep up. It only ever steps
+  // down: going back up and down again resizes the canvas each time, which shows as a stutter
+  // and the picture turning blurry and sharp in turn. Slow frames while the close-up is still
+  // loading don't count.
+  const QUALITY_STEPS = [1, 0.85, 0.72, 0.6];
+  let qualityStep = 0;
   let quality = 1;
   let lastNow = 0;
   let avgFrameMs = 16;
-  let settle = 120;         // frames to wait before (and after) each judgement
+  let settle = 90;          // frames to wait before each judgement
   function adapt(now) {
     const dt = now - lastNow;
     lastNow = now;
@@ -223,13 +227,10 @@ async function start() {
     if (scenes.length < SCENES.length) return;  // the close-up is still loading
     avgFrameMs = avgFrameMs * 0.94 + dt * 0.06;
     if (settle > 0) { settle--; return; }
-    if (avgFrameMs > 24 && quality > 0.75) {
-      quality = Math.max(0.75, quality * 0.9);
-      settle = 90;
+    if (avgFrameMs > 19 && qualityStep < QUALITY_STEPS.length - 1) {
+      quality = QUALITY_STEPS[++qualityStep];
+      settle = 60;
       avgFrameMs = 16;
-    } else if (avgFrameMs < 18.5 && quality < 1) {
-      quality = Math.min(1, quality / 0.85);
-      settle = 300;
     }
   }
 
@@ -454,7 +455,7 @@ function setSampling(gl, filter) {
  * mipmap level averaged down from the one above. Mipmaps of 16-bit float textures can't be generated on every
  * device, so they're made here. Anisotropic filtering keeps glancing views crisp.
  */
-function uploadSurface(gl, heights, size) {
+async function uploadSurface(gl, heights, size, tex) {
   // Horn's method (as in GDAL's hillshade): the slope across all eight neighbours, weighted
   // 1-2-1, which evens out survey speckle without softening real edges.
   const at = (x, y) => heights[Math.min(size - 1, Math.max(0, y)) * size + Math.min(size - 1, Math.max(0, x))];
@@ -462,6 +463,7 @@ function uploadSurface(gl, heights, size) {
   // height centred on 0 for the best half-float precision, the two slopes, and a spare.
   let level = new Float32Array(size * size * 4);
   for (let y = 0; y < size; y++) {
+    await breathe();
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4;
       level[i] = at(x, y) - 0.5;
@@ -474,11 +476,23 @@ function uploadSurface(gl, heights, size) {
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
   let n = size;
   for (let lod = 0; ; lod++) {
-    gl.texImage2D(gl.TEXTURE_2D, lod, gl.RGBA16F, n, n, 0, gl.RGBA, gl.FLOAT, level);
+    // Converted to half floats here, in slices, rather than by the browser in one long go.
+    const half = new Uint16Array(level.length);
+    for (let i = 0; i < level.length; i += 16384) {
+      await breathe();
+      const end = Math.min(level.length, i + 16384);
+      for (let j = i; j < end; j++) half[j] = toHalf(level[j]);
+    }
+    // Bound again each time: the animation may have drawn (and bound other textures) in between.
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, lod, gl.RGBA16F, n, n, 0, gl.RGBA, gl.HALF_FLOAT, half);
     if (n === 1) break;
+    await breathe();
     const m = n >> 1;
     const next = new Float32Array(m * m * 4);
     for (let y = 0; y < m; y++) {
+      if ((y & 15) === 0) await breathe();
       for (let x = 0; x < m; x++) {
         for (let c = 0; c < 4; c++) {
           const a = ((2 * y) * n + 2 * x) * 4 + c;
@@ -490,6 +504,8 @@ function uploadSurface(gl, heights, size) {
     level = next;
     n = m;
   }
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -501,8 +517,36 @@ function uploadSurface(gl, heights, size) {
   }
 }
 
+// Long sums are split into slices of a few milliseconds, handing back to the browser between
+// them, so preparing the second scene never stalls the one already turning.
+let sliceStart = 0;
+async function breathe() {
+  const now = performance.now();
+  if (now - sliceStart < 6) return;
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  sliceStart = performance.now();
+}
+
+// 32-bit float to 16-bit (half) float bits, rounded to nearest.
+const f32 = new Float32Array(1);
+const u32 = new Uint32Array(f32.buffer);
+function toHalf(v) {
+  f32[0] = v;
+  const x = u32[0];
+  const sign = (x >>> 16) & 0x8000;
+  const e = ((x >>> 23) & 0xff) - 112;      // rebias 127 -> 15
+  let m = x & 0x7fffff;
+  if (e <= 0) {                             // tiny: a subnormal half, or zero
+    if (e < -10) return sign;
+    m = (m | 0x800000) >> (1 - e);
+    return sign | ((m + 0x1000) >> 13);
+  }
+  if (e >= 31) return sign | 0x7c00;        // too big (not in these textures)
+  return sign | ((e << 10) + ((m + 0x1000) >> 13));
+}
+
 /** Gaussian blur in place (two passes, edges clamped); sigma in cells. */
-function blur(values, size, sigma) {
+async function blur(values, size, sigma) {
   if (!sigma) return;
   const r = Math.ceil(sigma * 2.5);
   const k = [];
@@ -511,6 +555,7 @@ function blur(values, size, sigma) {
   for (let i = 0; i < k.length; i++) k[i] /= sum;
   const tmp = new Float32Array(values.length);
   for (let y = 0; y < size; y++) {
+    await breathe();
     const row = y * size;
     for (let x = 0; x < size; x++) {
       let v = 0;
@@ -519,6 +564,7 @@ function blur(values, size, sigma) {
     }
   }
   for (let y = 0; y < size; y++) {
+    await breathe();
     for (let x = 0; x < size; x++) {
       let v = 0;
       for (let i = -r; i <= r; i++) v += k[i + r] * tmp[Math.min(size - 1, Math.max(0, y + i)) * size + x];
