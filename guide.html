@@ -47,11 +47,11 @@
   </ul>
 
   <h2 id="get">1. Get a depth file</h2>
-  <p><b>BathyPicker</b> cuts a piece out of the IMAS seabed survey of all Australian waters (up to 10 m detail along the coast) and saves it as one GeoTIFF, the standard file for depth maps.</p>
+  <p><b>BathyPicker</b> cuts a piece out of the IMAS seabed survey of all Australian waters (10 m detail along the coast) and saves it as one GeoTIFF, the standard file for depth maps. Where an original survey is finer (about 120 around Australia, down to 0.5 m), BathyPicker lays it on top and blends its edges in, so reefs and ledges show in full detail. This works on the computer and the phone.</p>
   <ol>
     <li>Download BathyPicker: <code>BathyPicker.exe</code> for Windows, <code>BathyPicker.apk</code> for Android, or the Python file for macOS and Linux. <a href="https://github.com/SeaBathy/BathyPicker/releases/latest">Downloads</a>.</li>
     <li>Drag the box over the water you want, by its round handle, and pull the corners. Or pick a place from <b>Jump to</b>.</li>
-    <li>Press <b>Check size</b>. It shows the detail and the file size before anything downloads. Big boxes step down in detail by themselves.</li>
+    <li>Press <b>Check size</b>. It shows the detail and the file size before anything downloads. Big boxes step down in detail by themselves. It also lists any original surveys in the box: untick the ones you don't want.</li>
     <li>Press <b>Build GeoTIFF</b>. A bay takes seconds, a whole coastline a few minutes.</li>
   </ol>
   <p>On a computer the file goes in <code>bathy_exports</code> in your user folder. On a phone it goes in <code>Download/BathyPicker</code>, and <b>Open</b> sends it straight to SeaBathy.</p>
