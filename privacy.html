@@ -6,12 +6,17 @@
   <title>Privacy policy · SeaBathy</title>
   <meta name="description" content="SeaBathy's privacy policy: no account, no ads, no tracking. What the apps send to map and ocean-data services, and why.">
   <link rel="canonical" href="https://seabathy.com/privacy">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="SeaBathy privacy policy">
+  <meta property="og:description" content="No account, no ads, no tracking. What the SeaBathy apps send to map and ocean-data services, and why.">
+  <meta property="og:url" content="https://seabathy.com/privacy">
+  <meta property="og:image" content="https://seabathy.com/img/og-seabed.jpg">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" href="/img/icon-48.png" type="image/png" sizes="48x48">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/css/site.css?v=7">
+  <link rel="stylesheet" href="/css/site.css?v=8">
   <style>
     .policy { max-width: 760px; margin: 0 auto; padding: 70px 16px 40px; }
     .policy h1 { font-size: clamp(36px, 5vw, 54px); font-weight: 820; margin-bottom: 10px; }
@@ -60,7 +65,7 @@
   <p>When you use "Following you" for tides, or ask for sea conditions where you are, the app sends that position (rounded to about 10 m) to the tide and forecast services below, as it would for any other spot you pick on the map. This only happens when you ask for that information.</p>
 
   <h2>What the apps send to other services</h2>
-  <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services as "SeaBathy". They send no names, accounts, files, advertising IDs or device identifiers.</p>
+  <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services by name ("SeaBathy" or "BathyPicker"). They send no names, accounts, files, advertising IDs or device identifiers. AT5 Chart Maker works entirely offline and contacts nothing.</p>
   <table>
     <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
     <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery</td><td>Which map tiles to send (the area on screen)</td></tr>
@@ -68,6 +73,10 @@
     <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
     <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
     <tr><td>GMRT (Columbia University)</td><td>Free seabed depths</td><td>The area</td></tr>
+    <tr><td>IMAS (University of Tasmania)</td><td>BathyPicker's depth data</td><td>Which parts of the depth files to send (the box you drew)</td></tr>
+    <tr><td>AusSeabed (Geoscience Australia, stored with Amazon Web Services)</td><td>BathyPicker's original surveys</td><td>Which parts of the survey files to send (the box you drew)</td></tr>
+    <tr><td>GitHub</td><td>BathyPicker's list of original surveys, and the app downloads</td><td>The request for the file</td></tr>
+    <tr><td>micro.mamba.pm and conda-forge</td><td>BathyPicker on a computer, once, to download GDAL if you don't already have it</td><td>The request for the files</td></tr>
     <tr><td>Map links you add yourself</td><td>Whatever you added them for</td><td>Which tiles to send, under that provider's own terms</td></tr>
   </table>
   <p>Each of these services has its own privacy policy and may keep ordinary server logs. SeaBathy has no control over them and receives nothing from them about you.</p>
