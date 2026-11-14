@@ -3,7 +3,7 @@
 The website for [SeaBathy](https://github.com/SeaBathy): free, open-source bathymetry apps for boaters
 anywhere in the world, plus free high-detail seabed data for Australian waters.
 
-It's a small static site with no build step, no libraries and no trackers. The 3D seabed at
+It's a small static site with no build step, no libraries and no cookies (visits are counted with Cloudflare's cookieless Web Analytics). The 3D seabed at
 the top is drawn live with WebGL2 from real survey data, two scenes that take turns
 (`data/wide-1024.i16d.gz` and `data/reef-1024.i16d.gz`), with a Wide / Close-up switch, and falls back to a still picture on
 browsers without WebGL2. Add `?t=12` to the address to hold the animation at 12 seconds.
