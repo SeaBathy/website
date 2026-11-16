@@ -46,7 +46,7 @@
 <main class="policy">
   <p class="eyebrow">Privacy policy</p>
   <h1>Your data stays yours.</h1>
-  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, BathyPicker and AT5 Chart Maker) and this website. Last updated 14 November 2026.</p>
+  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, BathyPicker and AT5 Chart Maker) and this website. Last updated 16 November 2026.</p>
 
   <div class="summary">
     <ul>
@@ -58,18 +58,20 @@
   </div>
 
   <h2>What stays on your device</h2>
-  <p>Your GPS position, the survey and chart files you open, waypoints, routes, tracks, anchor watches, tide places, saved maps and settings are kept on your phone or computer only. They are not backed up to the cloud by the app. Uninstalling the app deletes them (files you opened from your own storage stay where they are).</p>
+  <p>Your GPS position, the survey and chart files you open, waypoints, routes, tracks, anchor watches, tide places, saved maps and settings are kept on your phone or computer only. They are not sent anywhere by the app. If you turn on the daily backup, a backup file is saved to the folder you choose (which can be a cloud drive such as Google Drive or OneDrive: that service then holds it under its own terms). Photos you add to waypoints are kept in the app and in your backups. Uninstalling the app deletes them (files you opened from your own storage stay where they are).</p>
 
   <h2>Location</h2>
   <p>The Android app asks for location permission so it can show your boat on the chart, record tracks, run the anchor alarm and give depths along your route. Your position is used on the device. With your permission it is also used while the app is in the background, but only while you have a track recording or the anchor alarm on, shown by a notification you can stop at any time.</p>
   <p>When you use "Following you" for tides, or ask for sea conditions where you are, the app sends that position (rounded to about 10 m) to the tide and forecast services below, as it would for any other spot you pick on the map. This only happens when you ask for that information.</p>
+  <p>If you turn on the good-weather alert, the app sends your spot's position to Open-Meteo a few times a day, in the background, to check the forecast there. Turn the alert off and it stops.</p>
+  <p>When you make a waypoint from a gallery photo, the app reads where and when the photo was taken from the photo itself (Android asks you first). It may then send that position and date to Open-Meteo to look up the wind and sea at that hour. The photo itself is never sent anywhere.</p>
 
   <h2>What the apps send to other services</h2>
   <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services by name ("SeaBathy" or "BathyPicker"). They send no names, accounts, files, advertising IDs or device identifiers. AT5 Chart Maker works entirely offline and contacts nothing.</p>
   <table>
     <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
     <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery</td><td>Which map tiles to send (the area on screen)</td></tr>
-    <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search</td><td>The point or area, or the place name you search for</td></tr>
+    <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search, good-weather alerts, past conditions for a photo</td><td>The point or area (and, for a photo, its date), or the place name you search for</td></tr>
     <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
     <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
     <tr><td>GMRT (Columbia University)</td><td>Free seabed depths</td><td>The area</td></tr>
@@ -95,7 +97,7 @@
 </main>
 
 <footer class="footer">
-  <p class="footer-fine">© 2026 SeaBathy · MIT licence · Not for navigation.</p>
+  <p class="footer-fine">© 2026 SeaBathy · GPL-3.0 licence · Not for navigation.</p>
 </footer>
 </body>
 </html>
