@@ -90,7 +90,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="css/site.css?v=8">
+  <link rel="stylesheet" href="css/site.css?v=9">
   <script type="module" src="js/hero.js?v=9"></script>
   <script defer src="js/site.js?v=4"></script>
 </head>
@@ -167,7 +167,7 @@
         <div class="app-body">
           <p class="tag">Android</p>
           <h3>SeaBathy</h3>
-          <p>The seabed in your pocket. Open any GeoTIFF or MBTiles in 2D and 3D, with offline maps, tides, sea conditions, routes, an anchor alarm, and buoys and beacons (beta).</p>
+          <p>The seabed in your pocket. Open any GeoTIFF or MBTiles in 2D and 3D, with offline maps, tides, sea conditions and good-weather alerts, marine park zones with a no-take warning, reef names and boat ramps, waypoint photos, man overboard, routes, an anchor alarm, backups, and buoys and beacons (beta).</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-android/releases/latest">Download APK</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-android">Source</a>
@@ -182,7 +182,7 @@
         <div class="app-body">
           <p class="tag">Windows</p>
           <h3>SeaBathy Desktop</h3>
-          <p>Plan on the big screen. The same maps and 3D for your own GeoTIFF and MBTiles files, anywhere in the world, sharp to every pixel of the data.</p>
+          <p>Plan on the big screen. The same maps and 3D for your own GeoTIFF and MBTiles files, anywhere in the world, sharp to every pixel of the data, with marine park zones, reef names, boat ramps and backups that move to and from the phone.</p>
           <div class="app-actions">
             <a class="btn btn-primary btn-small" href="https://github.com/SeaBathy/seabathy-desktop/releases/latest">Download for Windows</a>
             <a class="btn btn-ghost btn-small" href="https://github.com/SeaBathy/seabathy-desktop">Source</a>
@@ -259,12 +259,24 @@
       </div>
     </div>
 
+    <div class="feature feature-phones">
+      <div class="feature-media">
+        <div class="phone"><img src="img/android-zones.webp" alt="Moreton Bay with no-take zones in green, reef and bank names, and boat ramps" width="720" height="1600" loading="lazy"></div>
+        <div class="phone phone-offset"><img src="img/android-notake.webp" alt="The warning shown when the boat goes into a no-take zone in Moreton Bay" width="720" height="1600" loading="lazy"></div>
+      </div>
+      <div class="feature-copy">
+        <p class="tag">Zones · names · photos</p>
+        <h3>Know where you can fish.</h3>
+        <p>Every Australian marine park, with no-take zones in green and a buzz when the boat crosses into one. Reef, island and bank names, boat ramps, and photos on your marks that remember the tide, wind and swell.</p>
+      </div>
+    </div>
+
     <div class="feature feature-flip">
       <div class="feature-media"><div class="window"><img src="img/desktop-route.webp" alt="Planning a route with depths along each leg" width="1440" height="900" loading="lazy"></div></div>
       <div class="feature-copy">
         <p class="tag">Plan</p>
         <h3>Plan the run.</h3>
-        <p>Waypoints and routes with the least survey depth on every leg, checked against your draft. GPX in and out, so marks move between your phone, PC and plotter.</p>
+        <p>Waypoints and routes with the least survey depth on every leg, checked against your draft. GPX, KML and KMZ in, GPX out, and backups that carry your marks between the phone, PC and plotter.</p>
       </div>
     </div>
 
@@ -281,6 +293,71 @@
         <p>AT5 Chart Maker turns a depth survey into the two layers your Simrad, Lowrance or B&amp;G plotter shows: a shaded depth picture for the photo overlay, and contour lines as a chart. Make both or just one, and choose which depths each shows.</p>
       </div>
     </div>
+  </section>
+
+
+  <!-- Everything in it -->
+  <section class="section" id="everything">
+    <div class="section-head">
+      <p class="eyebrow">Everything in it</p>
+      <h2>All free, <br>nothing held back.</h2>
+    </div>
+    <div class="all-features">
+      <div><h3>Charts and depths</h3><ul>
+        <li>Your GeoTIFF surveys, even multi-gigabyte, and MBTiles charts</li>
+        <li>Free seabed depths anywhere in the world</li>
+        <li>Seven palettes, relief shading, your own depth range</li>
+        <li>Depth under the crosshair, latitude and longitude grid</li>
+        <li>Online maps and your own tile links, saved offline</li>
+      </ul></div>
+      <div><h3>3D seabed</h3><ul>
+        <li>Fly over any depth file, height up to 100×</li>
+        <li>Contours, slope colours, depth profiles, sun and shadows</li>
+        <li>Satellite or offline maps draped over the seabed</li>
+        <li>Your boat live in 3D, with follow mode</li>
+      </ul></div>
+      <div><h3>Tides and sea</h3><ul>
+        <li>Tides offline for up to two years, tide-corrected depths</li>
+        <li>Wind, waves, swell and currents for 8 days, moving flow lines</li>
+        <li>Satellite sea temperature, breaks, chlorophyll, sea level, salinity</li>
+        <li>Temperature lines, a target band to chase, eddy outlines</li>
+        <li>Sun, moon and solunar times</li>
+        <li>Good-weather alerts for the days you choose</li>
+      </ul></div>
+      <div><h3>On the water</h3><ul>
+        <li>Routes with the least depth on every leg against your draft</li>
+        <li>Live navigation with off-course and shallow-water alarms</li>
+        <li>Man overboard button</li>
+        <li>Anchor alarm and track recording with the screen off</li>
+        <li>No-take zone warning</li>
+        <li>Night red filter, course up, true or magnetic</li>
+      </ul></div>
+      <div><h3>Marks and places</h3><ul>
+        <li>Waypoints with icons, colours, notes and photos</li>
+        <li>Photos saved with the tide, wind, swell and sea temperature</li>
+        <li>A waypoint from a gallery photo, where it was taken</li>
+        <li>Marine park zones, reef and island names, boat ramps</li>
+        <li>Buoys, beacons, pipelines and cables (beta)</li>
+      </ul></div>
+      <div><h3>Your data</h3><ul>
+        <li>GPX, KML and KMZ in, GPX out</li>
+        <li>Backup and restore, daily to Google Drive or any folder</li>
+        <li>Moves between the phone and SeaBathy Desktop</li>
+        <li>No account, no ads, no tracking</li>
+        <li>Open source under GPL-3.0</li>
+      </ul></div>
+      <div><h3>BathyPicker</h3><ul>
+        <li>Draw a box anywhere in Australian waters</li>
+        <li>Get a free depth GeoTIFF: 10 m along the coast, down to 0.5 m where surveyed</li>
+        <li>Windows, macOS, Linux and Android</li>
+      </ul></div>
+      <div><h3>AT5 Chart Maker</h3><ul>
+        <li>Turns a survey into Simrad, Lowrance and B&amp;G plotter layers</li>
+        <li>A shaded depth picture and a contour chart</li>
+        <li>Choose which depths each shows</li>
+      </ul></div>
+    </div>
+    <p class="all-note">Not for navigation. Zones are a guide: the official zoning map is the law.</p>
   </section>
 
   <!-- How to -->

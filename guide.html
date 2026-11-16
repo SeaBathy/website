@@ -16,7 +16,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/css/site.css?v=8">
+  <link rel="stylesheet" href="/css/site.css?v=9">
 </head>
 <body>
 <header class="nav">
@@ -71,15 +71,19 @@
     <li><b>Offline maps:</b> Settings → Offline maps → Download the area on screen. Satellite imagery for when there's no signal.</li>
     <li><b>Tides:</b> tap the Tide chip, choose a place and save the weeks ahead.</li>
     <li><b>Sea conditions:</b> Settings → Sea conditions. Wind, waves, swell, currents, sea temperature and its breaks, chlorophyll, and temperature at a depth you choose, for 200 km round your spot. Tap a line in the values box to show it on the map.</li>
+    <li><b>Marine park zones, reef names and boat ramps:</b> the <b>Zones</b>, <b>Names</b> and <b>Ramps</b> switches at the top of the Layers drawer. No-take zones are green; show all zones or only no-take ones, and tap a zone for what's allowed. With the GPS on, the phone warns you when the boat enters a no-take zone. A guide only: the official zoning map is the law.</li>
+    <li><b>Good-weather alert:</b> Sea conditions → Good-weather alert. Set your wind and wave limits and which days, and get a notification when a good day is coming.</li>
+    <li><b>Backup:</b> Settings → Backup and restore. Turn on the daily backup to a folder such as Google Drive.</li>
     <li><b>Buoys, beacons and pipelines (beta):</b> Settings → Map display. Channel markers, cardinals, lights, moorings, offshore pipelines and submarine cables from free government data. Tap a mark to see what it is. It's <b>not for navigation</b>: many marks are missing or out of date, so you confirm that each time you turn it on.</li>
   </ul>
   <h3>On the water</h3>
   <ul>
     <li><b>Routes:</b> tap the route button and tap the chart. <b>Legs</b> shows the least survey depth on each leg against your draft. Saved routes → <b>Go</b> navigates one, with off-course and shallow-water alarms.</li>
-    <li><b>Waypoints:</b> the waypoint button drops a mark at the crosshair. Add an icon, colour and notes.</li>
+    <li><b>Waypoints:</b> the waypoint button drops a mark at the crosshair. Add an icon, colour and notes. Open one and tap <b>Take a photo</b> to save the photo with the tide, wind, waves and sea temperature then. Forgot to mark a spot? <b>Waypoint from a photo</b> in the Layers drawer makes one where a gallery photo was taken.</li>
+    <li><b>Man overboard:</b> the red <b>MOB</b> button marks the boat's position and steers you back to it.</li>
     <li><b>Anchor alarm:</b> Settings → Anchor alarm → <b>Drop anchor at the boat</b>, and set the circle. It keeps watching with the screen off.</li>
     <li><b>Tracks:</b> Settings → Tracks → <b>Start recording</b>. Share it later as GPX.</li>
-    <li><b>GPX:</b> Settings → <b>Import GPX</b> and <b>Export waypoints and route</b>, to swap marks with your plotter or PC.</li>
+    <li><b>GPX, KML, KMZ:</b> Settings → <b>Import GPX, KML or KMZ</b> and <b>Export waypoints and route</b>, to swap marks with your plotter or PC.</li>
   </ul>
 
   <h2 id="pc">3. On your PC</h2>
@@ -88,7 +92,8 @@
     <li>Drag the GeoTIFF or MBTiles onto the window.</li>
     <li><b>Colours</b> sets the palette and depth range; <b>3D view</b> opens it in 3D. Drag to turn, right-drag to pan, scroll to zoom. <code>F</code> fits it, <code>T</code> looks from the top.</li>
     <li>Plan routes on the big screen, then <b>export GPX</b> and import it on the phone or plotter.</li>
-    <li>Buoys, beacons and pipelines (beta) are under Settings → Map display, as on the phone. Not for navigation.</li>
+    <li>Marine park zones, reef names and boat ramps are switched on at the top of the side panel; buoys, beacons and pipelines (beta) under Settings → Map display. Not for navigation.</li>
+    <li><b>Settings → Backup and restore</b> saves your marks, routes and settings; a phone backup restored here adds its waypoints and routes.</li>
   </ol>
   <p>Offline maps you save on the PC are MBTiles files in <code>Documents\SeaBathy\OfflineDownloads</code>. Copy them to the phone and load them there too.</p>
 
