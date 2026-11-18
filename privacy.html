@@ -71,6 +71,7 @@
   <table>
     <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
     <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery; the coastline round downloaded sea conditions</td><td>Which map tiles to send (the area on screen, or round the sea conditions area)</td></tr>
+    <tr><td>Cloudflare public DNS (1.1.1.1)</td><td>Finding a data server's address, only when the phone's own DNS can't</td><td>The name of that data server (for example the forecast service's), nothing about you or your position</td></tr>
     <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search, good-weather alerts, past conditions for a photo</td><td>The point or area (and, for a photo, its date), or the place name you search for</td></tr>
     <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
     <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
