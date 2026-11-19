@@ -242,6 +242,10 @@ p { margin: 0; }
 
 /* app cards */
 .apps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+/* An odd card left over at the end sits in the middle, not alone at the left. */
+@media (min-width: 981px) {
+  .apps > .app:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - 11px); justify-self: center; }
+}
 .app {
   display: flex;
   flex-direction: column;

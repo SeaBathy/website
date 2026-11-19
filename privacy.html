@@ -16,7 +16,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/css/site.css?v=9">
+  <link rel="stylesheet" href="/css/site.css?v=10">
   <style>
     .policy { max-width: 760px; margin: 0 auto; padding: 70px 16px 40px; }
     .policy h1 { font-size: clamp(36px, 5vw, 54px); font-weight: 820; margin-bottom: 10px; }
@@ -46,7 +46,7 @@
 <main class="policy">
   <p class="eyebrow">Privacy policy</p>
   <h1>Your data stays yours.</h1>
-  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, BathyPicker and AT5 Chart Maker) and this website. Last updated 16 November 2026.</p>
+  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, the SeaBathy web app at app.seabathy.com, BathyPicker and AT5 Chart Maker) and this website. Last updated 20 November 2026.</p>
 
   <div class="summary">
     <ul>
@@ -60,26 +60,34 @@
   <h2>What stays on your device</h2>
   <p>Your GPS position, the survey and chart files you open, waypoints, routes, tracks, anchor watches, tide places, saved maps and settings are kept on your phone or computer only. They are not sent anywhere by the app. If you turn on the daily backup, a backup file is saved to the folder you choose (which can be a cloud drive such as Google Drive or OneDrive: that service then holds it under its own terms). Photos you add to waypoints are kept in the app and in your backups. Uninstalling the app deletes them (files you opened from your own storage stay where they are).</p>
 
+  <p>The web app keeps its depths, charts, waypoints and settings in your browser's own storage on the device. Removing it from the Home Screen, or clearing the browser's data for app.seabathy.com, deletes them.</p>
+
   <h2>Location</h2>
   <p>The Android app asks for location permission so it can show your boat on the chart, record tracks, run the anchor alarm and give depths along your route. Your position is used on the device. With your permission it is also used while the app is in the background, but only while you have a track recording or the anchor alarm on, shown by a notification you can stop at any time.</p>
   <p>When you use "Following you" for tides, or ask for sea conditions where you are, the app sends that position (rounded to about 10 m) to the tide and forecast services below, as it would for any other spot you pick on the map. This only happens when you ask for that information.</p>
   <p>If you turn on the good-weather alert, the app sends the position of each place you set for it (or your spot's) to Open-Meteo every few hours, in the background, to check the forecast there. Turn the alert off and it stops.</p>
   <p>When you make a waypoint from a gallery photo, the app reads where and when the photo was taken from the photo itself (Android asks you first). It may then send that position and date to Open-Meteo to look up the wind and sea at that hour. The photo itself is never sent anywhere.</p>
 
+  <p>The web app asks for your position through the browser, shows it on the chart and uses it on the device only. It can do so only while it is open on the screen.</p>
+
   <h2>What the apps send to other services</h2>
-  <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services by name ("SeaBathy" or "BathyPicker"). They send no names, accounts, files, advertising IDs or device identifiers. AT5 Chart Maker works entirely offline and contacts nothing.</p>
+  <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services by name ("SeaBathy" or "BathyPicker"). The web app runs in your browser, so its requests carry what any web page's do: the browser's name and the address app.seabathy.com. They send no names, accounts, files, advertising IDs or device identifiers. AT5 Chart Maker works entirely offline and contacts nothing.</p>
   <table>
     <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
     <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery; the coastline round downloaded sea conditions</td><td>Which map tiles to send (the area on screen, or round the sea conditions area)</td></tr>
     <tr><td>Cloudflare public DNS (1.1.1.1)</td><td>Finding a data server's address, only when the phone's own DNS can't</td><td>The name of that data server (for example the forecast service's), nothing about you or your position</td></tr>
     <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search, good-weather alerts, past conditions for a photo</td><td>The point or area (and, for a photo, its date), or the place name you search for</td></tr>
+    <tr><td>PacIOOS (University of Hawaii)</td><td>The backup wind, wave and swell forecast (NOAA GFS and WaveWatch III), used only when Open-Meteo can't be reached or is at its daily limit</td><td>The area</td></tr>
     <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
     <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
     <tr><td>GMRT (Columbia University)</td><td>Free seabed depths</td><td>The area</td></tr>
     <tr><td>IMAS (University of Tasmania), AusSeabed (Amazon S3) and GitHub</td><td>High-detail Australian depths: the composite, the surveys and the survey list</td><td>The parts of the files inside the area</td></tr>
+    <tr><td>IMAS map server (University of Tasmania)</td><td>The web app's high-detail Australian depths</td><td>The area</td></tr>
     <tr><td>IMAS (University of Tasmania)</td><td>BathyPicker's depth data</td><td>Which parts of the depth files to send (the box you drew)</td></tr>
     <tr><td>AusSeabed (Geoscience Australia, stored with Amazon Web Services)</td><td>BathyPicker's original surveys</td><td>Which parts of the survey files to send (the box you drew)</td></tr>
     <tr><td>GitHub</td><td>BathyPicker's list of original surveys, and the app downloads</td><td>The request for the file</td></tr>
+    <tr><td>GitHub Pages</td><td>The web app itself at app.seabathy.com, and looking for a newer version of it</td><td>The request for the app's files</td></tr>
+    <tr><td>epsg.io (MapTiler)</td><td>The web app, once for each unusual map projection in a survey file you load</td><td>That projection's number</td></tr>
     <tr><td>micro.mamba.pm and conda-forge</td><td>BathyPicker on a computer, once, to download GDAL if you don't already have it</td><td>The request for the files</td></tr>
     <tr><td>Map links you add yourself</td><td>Whatever you added them for</td><td>Which tiles to send, under that provider's own terms</td></tr>
   </table>
@@ -89,7 +97,7 @@
   <p>The app keeps a short log of what it did, on the device, so problems can be fixed. Web addresses in it have keys and passwords removed. It never leaves the device unless you choose "Export debug log" and share it yourself.</p>
 
   <h2>This website</h2>
-  <p>seabathy.com sets no cookies. It uses Cloudflare Web Analytics to count visits: a small script from Cloudflare notes which page was viewed, the site you came from, your browser and device type, and your country, so we can see which pages people use. It sets no cookies, doesn't identify you, and doesn't follow you to other sites. The website is hosted by Cloudflare and the app downloads by GitHub.</p>
+  <p>seabathy.com sets no cookies. It uses Cloudflare Web Analytics to count visits: a small script from Cloudflare notes which page was viewed, the site you came from, your browser and device type, and your country, so we can see which pages people use. It sets no cookies, doesn't identify you, and doesn't follow you to other sites. The website is hosted by Cloudflare, and the app downloads and the web app (app.seabathy.com) by GitHub. The web app sets no cookies and has no analytics.</p>
 
   <h2>Children</h2>
   <p>SeaBathy is a general-audience app and is not directed at children. It collects no personal information from anyone.</p>
