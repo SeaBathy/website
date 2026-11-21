@@ -1,7 +1,8 @@
 # SeaBathy website
 
 The website for [SeaBathy](https://github.com/SeaBathy): free, open-source bathymetry apps for boaters
-anywhere in the world, plus free high-detail seabed data for Australian waters.
+anywhere in the world, plus free high-detail seabed data for Australia, the USA, Canada, New Zealand,
+the Pacific islands and Europe.
 
 It's a small static site with no build step, no libraries and no cookies (visits are counted with Cloudflare's cookieless Web Analytics). The 3D seabed at
 the top is drawn live with WebGL2 from real survey data, two scenes that take turns
