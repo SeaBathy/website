@@ -46,7 +46,7 @@
 <main class="policy">
   <p class="eyebrow">Privacy policy</p>
   <h1>Your data stays yours.</h1>
-  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, the SeaBathy web app at app.seabathy.com, BathyPicker and AT5 Chart Maker) and this website. Last updated 21 November 2026.</p>
+  <p>This policy covers the SeaBathy apps (SeaBathy for Android, SeaBathy Desktop, the SeaBathy web app at app.seabathy.com, BathyPicker and AT5 Chart Maker) and this website. Last updated 22 November 2026.</p>
 
   <div class="summary">
     <ul>
@@ -74,14 +74,16 @@
   <p>These are public services the apps use to fetch maps and data. Each request includes the map area or point concerned, and, like any internet request, your device's IP address. The apps identify themselves to these services by name ("SeaBathy" or "BathyPicker"). The web app runs in your browser, so its requests carry what any web page's do: the browser's name and the address app.seabathy.com. They send no names, accounts, files, advertising IDs or device identifiers. AT5 Chart Maker works entirely offline and contacts nothing.</p>
   <table>
     <tr><th>Service</th><th>What for</th><th>What it receives</th></tr>
-    <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap</td><td>Map tiles and satellite imagery; the coastline round downloaded sea conditions</td><td>Which map tiles to send (the area on screen, or round the sea conditions area)</td></tr>
+    <tr><td>OpenFreeMap, Sentinel-2 cloudless (EOX), NASA GIBS, USGS, OpenSeaMap, OpenStreetMap, OpenTopoMap; Geoscience Australia (low and high tide coast) and Copernicus Marine (satellite-estimated depths) when you add those layers</td><td>Map tiles and satellite imagery; the coastline round downloaded sea conditions</td><td>Which map tiles to send (the area on screen, or round the sea conditions area)</td></tr>
     <tr><td>Cloudflare public DNS (1.1.1.1)</td><td>Finding a data server's address, only when the phone's own DNS can't</td><td>The name of that data server (for example the forecast service's), nothing about you or your position</td></tr>
     <tr><td>Open-Meteo</td><td>Tides, wind, waves, swell, currents, sea temperature, place search, good-weather alerts, past conditions for a photo</td><td>The point or area (and, for a photo, its date), or the place name you search for</td></tr>
     <tr><td>PacIOOS (University of Hawaii)</td><td>The backup wind, wave and swell forecast (NOAA GFS and WaveWatch III), used only when Open-Meteo can't be reached or is at its daily limit</td><td>The area</td></tr>
     <tr><td>OpenStreetMap Nominatim</td><td>Suggesting a name for a spot you're naming</td><td>That one point</td></tr>
-    <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, deeper temperature</td><td>The area</td></tr>
+    <tr><td>NOAA CoastWatch, NASA, HYCOM</td><td>Satellite sea temperature, chlorophyll, sea level, salinity, water clarity, deeper temperature</td><td>The area</td></tr>
+    <tr><td>Queensland Government open data (Maritime Safety Queensland)</td><td>Official tide predictions near Queensland tide gauges</td><td>Which gauge's yearly prediction file to send</td></tr>
+    <tr><td>NSW Government map service (Department of Climate Change, Energy, the Environment and Water)</td><td>NSW seabed reef outlines, only while that layer is on</td><td>The map tile being looked at</td></tr>
     <tr><td>GMRT (Columbia University)</td><td>Free seabed depths</td><td>The area</td></tr>
-    <tr><td>IMAS (University of Tasmania), AusSeabed (Amazon S3) and GitHub</td><td>High-detail Australian depths: the composite, the surveys and the survey list</td><td>The parts of the files inside the area</td></tr>
+    <tr><td>IMAS (University of Tasmania), AusSeabed (Amazon S3 and Geoscience Australia's data warehouse) and GitHub</td><td>High-detail Australian depths: the composite, the marine park mosaics, the surveys and the survey list</td><td>The parts of the files inside the area</td></tr>
     <tr><td>IMAS map server (University of Tasmania)</td><td>The web app's high-detail Australian depths</td><td>The area</td></tr>
     <tr><td>NOAA NCEI (United States), Canadian Hydrographic Service, EMODnet (European Union)</td><td>High-detail depths in the USA, Canada and Europe</td><td>The area</td></tr>
     <tr><td>LINZ (New Zealand) and Digital Earth Pacific (Pacific Community), both stored with Amazon Web Services</td><td>High-detail depths in New Zealand and the Pacific islands: the file lists and the depths</td><td>The area, and which parts of the depth files to send</td></tr>
